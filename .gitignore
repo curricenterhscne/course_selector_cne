@@ -1,0 +1,30 @@
+# 시스템
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 에디터
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 로컬 테스트용
+.python-version
+__pycache__/
+*.pyc
+node_modules/
+.env
+.env.local
+
+# 임시
+*.log
+*.tmp
+
+# 데이터 원본 (Schools 시트에 담당자 연락처 등 PII 가능)
+# data/ 폴더 아래 JSON은 추출된 산출물이므로 커밋 대상.
+# xlsx 원본은 별도 관리.
+uploads/
+*.xlsx
+*.xlsm

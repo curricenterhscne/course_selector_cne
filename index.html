@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>충남 고교 과목 선택 실습 — 고교학점제 시뮬레이션</title>
+<style>
+  :root {
+    --bg: #f7f5ef;
+    --panel: #ffffff;
+    --ink: #1a1815;
+    --ink-soft: #5a554c;
+    --line: #d8d2c5;
+    --line-strong: #1a1815;
+    --accent: #b8341e;
+    --accent-soft: #f8e8e3;
+    --warn: #c4761a;
+    --warn-soft: #fbf0d8;
+    --ok: #2d6b3a;
+    --ok-soft: #e3efdf;
+    --row-1: #fcfaf3;
+    --row-2: #f3efe4;
+    --type-gongtong: #6b4423;
+    --type-ilban: #2c5f7c;
+    --type-jinro: #7d3a5c;
+    --type-yunghap: #4a6b2e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: 'Noto Serif KR', 'Iropke Batang', '본명조', serif;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .nav, .toolbar, .badge, .pill, .group-meta, .counter, table,
+  button, select, input, aside { font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
+
+  header {
+    border-bottom: 2px solid var(--line-strong);
+    background: var(--bg);
+    padding: 14px 28px 12px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  header .row1 {
+    display: flex; align-items: baseline; gap: 16px;
+    margin-bottom: 10px;
+  }
+  header h1 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  header .subtitle { font-size: 11.5px; color: var(--ink-soft); }
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    font-size: 12.5px;
+  }
+  .toolbar label { color: var(--ink-soft); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .toolbar select, .toolbar input[type="text"] {
+    font: inherit; padding: 5px 9px;
+    border: 1px solid var(--line); background: var(--panel); border-radius: 2px;
+  }
+  .toolbar select { min-width: 120px; }
+  .toolbar #school-sel { min-width: 240px; }
+  .toolbar #dept-sel { min-width: 130px; }
+  .toolbar input[type="text"] { width: 140px; }
+  .school-meta {
+    font-size: 11.5px; color: var(--ink-soft);
+    border-left: 1px solid var(--line); padding-left: 10px;
+  }
+
+  .presets {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    font-size: 12px;
+  }
+  .presets .label {
+    color: var(--ink-soft); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-right: 4px;
+  }
+  .preset-btn {
+    padding: 5px 11px; border: 1px solid var(--line); background: var(--panel);
+    cursor: pointer; font: inherit; font-size: 12px;
+    transition: all 0.12s; border-radius: 2px;
+  }
+  .preset-btn:hover { border-color: var(--ink); background: var(--row-2); }
+  .preset-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .share-btn, .clear-btn {
+    padding: 5px 11px; border: 1px solid var(--line); background: transparent;
+    cursor: pointer; font: inherit; font-size: 12px; margin-left: auto;
+  }
+  .share-btn { border-color: var(--accent); color: var(--accent); }
+  .share-btn:hover { background: var(--accent-soft); }
+  .clear-btn:hover { background: var(--row-2); }
+
+  main {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    padding: 20px 28px 80px;
+    max-width: 1600px; margin: 0 auto;
+  }
+  @media (max-width: 1100px) {
+    main { grid-template-columns: 1fr; }
+    aside.counter-panel { position: static !important; }
+  }
+  .placeholder {
+    padding: 80px 40px; text-align: center;
+    color: var(--ink-soft); border: 1px dashed var(--line); font-style: italic;
+  }
+
+  .group-card {
+    background: var(--panel);
+    border: 1px solid var(--line-strong);
+    margin-bottom: 24px;
+  }
+  .group-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-strong);
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    background: #1a1815; color: #f7f5ef;
+  }
+  .group-header h2 { font-size: 13px; font-weight: 700; margin: 0; letter-spacing: 0.04em; }
+  .group-header .division-num {
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+    font-size: 15px; font-style: italic;
+  }
+  .group-meta { font-size: 11px; color: #c8c2b5; }
+  .group-meta .pill { background: #2a2620; border-color: #4a443a; color: #e8e2d4; }
+  .group-meta .pill.ok { background: #1f4028; border-color: #2d6b3a; color: #a8e0b2; }
+  .group-meta .pill.warn { background: #4a3318; border-color: #8a5a20; color: #e8c890; }
+  .group-meta .pill.err { background: #4a1d14; border-color: #8a2818; color: #ffb8a8; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td {
+    padding: 5px 7px;
+    border-bottom: 1px solid var(--line);
+    text-align: center; vertical-align: middle;
+  }
+  th {
+    background: #f3efe4; font-weight: 600; font-size: 11px;
+    letter-spacing: 0.02em; color: var(--ink-soft);
+    border-bottom: 1.5px solid var(--line-strong);
+  }
+  td.subject-name {
+    text-align: left;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px; padding-left: 12px; min-width: 180px;
+  }
+  td.group-cell { font-size: 11.5px; color: var(--ink-soft); width: 62px; }
+  td.sem-cell {
+    width: 38px;
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+    font-size: 13px;
+  }
+  td.sem-cell.has-credit { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  td.sem-cell.selectable { cursor: pointer; transition: background 0.1s; }
+  td.sem-cell.selectable:hover { background: #ede6d4; }
+  td.sem-cell.selected { background: var(--accent); color: #fff; font-weight: 700; }
+  td.sem-cell.disabled-sem {
+    background: repeating-linear-gradient(45deg, transparent, transparent 4px, #e8e2d4 4px, #e8e2d4 5px);
+    cursor: not-allowed;
+  }
+
+  .type-badge {
+    display: inline-block; font-size: 10px; padding: 1px 5px;
+    border-radius: 2px; margin-right: 5px;
+    font-weight: 600; vertical-align: middle; color: #fff;
+  }
+  .type-공통 { background: var(--type-gongtong); }
+  .type-일반 { background: var(--type-ilban); }
+  .type-진로 { background: var(--type-jinro); }
+  .type-융합 { background: var(--type-yunghap); }
+  .pill {
+    display: inline-block; font-size: 10.5px; padding: 2px 7px;
+    border: 1px solid var(--line); border-radius: 99px;
+    background: var(--panel); color: var(--ink-soft);
+  }
+
+  aside.counter-panel {
+    position: sticky; top: 130px; align-self: start;
+    background: var(--panel); border: 1px solid var(--line-strong);
+    padding: 16px 16px 14px;
+    max-height: calc(100vh - 150px); overflow-y: auto;
+  }
+  .counter-panel h3 {
+    margin: 0 0 8px;
+    font-size: 11.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    padding-bottom: 5px; border-bottom: 1px solid var(--line);
+  }
+  .total-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 6px 0; border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+  }
+  .total-row.big {
+    font-size: 14px; border-bottom: 2px solid var(--line-strong); margin-bottom: 6px;
+  }
+  .total-row .num {
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+    font-weight: 700; font-size: 17px;
+  }
+  .total-row.big .num { font-size: 22px; }
+  .progress-bar {
+    height: 6px; background: var(--line); margin: 4px 0 10px;
+    position: relative; overflow: hidden;
+  }
+  .progress-bar > div { height: 100%; background: var(--accent); transition: width 0.2s; }
+  .group-summary {
+    font-size: 11px; padding: 3px 0;
+    display: flex; justify-content: space-between; gap: 6px;
+    color: var(--ink-soft);
+  }
+  .group-summary .label { flex: 0 0 auto; }
+  .group-summary .val { text-align: right; flex: 1 1 auto; }
+  .group-summary.violated { color: var(--accent); }
+  .group-summary.warned { color: var(--warn); }
+  .group-summary.satisfied { color: var(--ok); }
+
+  .legend {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin: 0 0 16px; padding: 9px 13px;
+    background: var(--row-1); border: 1px solid var(--line);
+    font-size: 11px; color: var(--ink-soft);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .legend .sample {
+    display: inline-block; width: 13px; height: 13px;
+    border: 1px solid var(--line); vertical-align: middle;
+  }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg);
+    padding: 11px 18px; font-size: 13px; border-radius: 2px;
+    z-index: 100; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="row1">
+    <h1>충남 고교 과목 선택 실습</h1>
+    <span class="subtitle">2025·2026학년도 입학생 · 고교학점제 편제표 기반 시뮬레이션</span>
+  </div>
+  <div class="toolbar">
+    <label for="year-sel">학년도</label>
+    <select id="year-sel">
+      <option value="2026" selected>2026학년도 입학생</option>
+      <option value="2025">2025학년도 입학생</option>
+    </select>
+
+    <label for="region-sel">지역</label>
+    <select id="region-sel"><option value="">전체</option></select>
+
+    <label for="school-sel">학교</label>
+    <select id="school-sel"><option value="">학교를 선택하세요</option></select>
+
+    <select id="dept-sel" style="display:none;"></select>
+
+    <input type="text" id="school-search" placeholder="학교명 검색…" />
+
+    <div class="school-meta" id="school-meta">학교를 선택하면 정보가 표시됩니다</div>
+  </div>
+  <div class="presets" id="presets" style="display:none;">
+    <span class="label">계열 프리셋</span>
+    <button class="preset-btn" data-preset="science">이공·자연</button>
+    <button class="preset-btn" data-preset="engineering">공학·IT</button>
+    <button class="preset-btn" data-preset="commerce">경상·사회</button>
+    <button class="preset-btn" data-preset="humanities">인문·어문</button>
+    <button class="preset-btn" data-preset="arts">예술</button>
+    <button class="preset-btn" data-preset="sports">체육</button>
+    <button class="clear-btn" id="clear-btn">선택 비우기</button>
+    <button class="share-btn" id="share-btn">🔗 공유 링크 복사</button>
+  </div>
+</header>
+
+<main>
+  <section id="curriculum-area">
+    <div class="placeholder" id="placeholder">
+      좌측 상단에서 학교를 선택하면 3개년 교육과정 편제표가 표시됩니다.<br>
+      과목 셀을 클릭하여 선택을 시뮬레이션할 수 있습니다.
+    </div>
+  </section>
+
+  <aside class="counter-panel" id="counter-panel" style="display: none;">
+    <h3>이수 학점 집계</h3>
+    <div class="total-row big">
+      <span>총 이수학점</span>
+      <span><span class="num" id="total-credits">0</span> / 192</span>
+    </div>
+    <div class="progress-bar"><div id="progress-fill" style="width: 0%;"></div></div>
+
+    <h3 style="margin-top: 14px;">교과군별</h3>
+    <div id="group-breakdown"></div>
+
+    <h3 style="margin-top: 14px;">선택 그룹 충족 현황</h3>
+    <div id="group-status"></div>
+  </aside>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PRESETS = {
+  science: {
+    name: '이공·자연',
+    priority: ['미적분Ⅰ','미적분Ⅱ','기하','고급 미적분','고급 기하',
+      '물리학','화학','생명과학','지구과학',
+      '역학과 에너지','전자기와 양자','물질과 에너지','화학 반응의 세계',
+      '세포와 물질대사','생물의 유전','행성우주과학','지구시스템과학',
+      '물리학 실험','화학 실험','생명과학 실험','지구과학 실험',
+      '고급 물리학','고급 화학','고급 생명과학','고급 지구과학',
+      '융합과학 탐구','과학과제 연구','전문 수학','실용 통계',
+      '인공지능 수학','인공지능 기초'],
+  },
+  engineering: {
+    name: '공학·IT',
+    priority: ['미적분Ⅰ','미적분Ⅱ','기하','확률과 통계',
+      '물리학','화학','전자기와 양자','역학과 에너지',
+      '인공지능 기초','인공지능 수학','데이터 과학','정보과학',
+      '프로그래밍','소프트웨어와 생활','로봇과 공학세계','창의 공학 설계',
+      '응용 프로그래밍 개발','빅 데이터 분석','사물 인터넷과 센서 제어',
+      '지식 재산 일반'],
+  },
+  commerce: {
+    name: '경상·사회',
+    priority: ['확률과 통계','경제 수학','실용 통계',
+      '경제','사회와 문화','정치','법과 사회',
+      '금융과 경제생활','세계시민과 지리','한국지리 탐구',
+      '국제 관계의 이해','세계사','동아시아 역사 기행',
+      '도시의 미래 탐구','사회문제 탐구','현대사회와 윤리',
+      '데이터 과학','심화 영어','심화 영어 독해와 작문','영어 발표와 토론'],
+  },
+  humanities: {
+    name: '인문·어문',
+    priority: ['문학','화법과 언어','독서와 작문','주제 탐구 독서',
+      '문학과 영상','독서 토론과 글쓰기','매체 의사소통','언어생활 탐구',
+      '세계사','동아시아 역사 기행','역사로 탐구하는 현대 세계',
+      '인문학과 윤리','윤리와 사상','현대사회와 윤리','윤리문제 탐구',
+      '영어 독해와 작문','심화 영어','영미 문학 읽기','심화 영어 독해와 작문',
+      '세계 문화와 영어','일본어','중국어','한문',
+      '일본 문화','중국 문화','언어생활과 한자','한문 고전 읽기',
+      '일본어 회화','중국어 회화','심화 일본어','심화 중국어'],
+  },
+  arts: {
+    name: '예술',
+    priority: ['음악','미술','음악 연주와 창작','미술 창작',
+      '음악 감상과 비평','미술 감상과 비평','음악과 미디어','미술과 매체',
+      '문학과 영상','매체 의사소통','독서 토론과 글쓰기'],
+  },
+  sports: {
+    name: '체육',
+    priority: ['체육1','체육2','스포츠 생활1','스포츠 생활2',
+      '스포츠 문화','스포츠 과학','스포츠 개론',
+      '기초 체육 전공 실기','심화 체육 전공 실기','고급 체육 전공 실기',
+      '스포츠 경기 체력','보건','인간과 심리'],
+  },
+};
+
+const state = {
+  year: '2026',
+  schools: [],
+  curriculum: null,
+  selectedCode: null,
+  selectedBaseCode: null,
+  selectedDept: null,
+  userSelections: new Set(),
+  activePreset: null,
+};
+
+const SEMESTER_LABELS = ['1-1', '1-2', '2-1', '2-2', '3-1', '3-2'];
+
+function serializeStateToUrl() {
+  const p = new URLSearchParams();
+  p.set('y', state.year);
+  if (state.selectedBaseCode) p.set('s', state.selectedBaseCode);
+  if (state.selectedDept) p.set('d', state.selectedDept);
+  if (state.userSelections.size > 0) {
+    const picks = [...state.userSelections]
+      .map(k => k.replace('-s','s').replace('-sem','i'))
+      .join(',');
+    p.set('p', picks);
+  }
+  return '?' + p.toString();
+}
+function deserializeUrl() {
+  const p = new URLSearchParams(window.location.search);
+  const out = { year: p.get('y') || '2026', schoolBase: p.get('s'), dept: p.get('d'), picks: [] };
+  if (p.get('p')) {
+    out.picks = p.get('p').split(',').map(s => {
+      const m = s.match(/^g(\d+)s(\d+)i(\d+)$/);
+      return m ? `g${m[1]}-s${m[2]}-sem${m[3]}` : null;
+    }).filter(Boolean);
+  }
+  return out;
+}
+function pushUrl() {
+  window.history.replaceState(null, '', window.location.pathname + serializeStateToUrl());
+}
+
+async function loadSchools() {
+  const res = await fetch('data/schools.json');
+  state.schools = await res.json();
+  populateRegions();
+  populateSchoolSelect();
+
+  const url = deserializeUrl();
+  state.year = url.year;
+  document.getElementById('year-sel').value = state.year;
+
+  if (url.schoolBase) {
+    document.getElementById('school-sel').value = url.schoolBase;
+    state.selectedBaseCode = url.schoolBase;
+    onSchoolChange(url.schoolBase, url.dept, url.picks);
+  }
+}
+
+function populateRegions() {
+  const regions = [...new Set(state.schools.map(s => s.지역).filter(Boolean))].sort();
+  const sel = document.getElementById('region-sel');
+  regions.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r; o.textContent = r;
+    sel.appendChild(o);
+  });
+}
+
+function populateSchoolSelect() {
+  const region = document.getElementById('region-sel').value;
+  const search = document.getElementById('school-search').value.trim();
+  const sel = document.getElementById('school-sel');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">학교를 선택하세요</option>';
+  let list = state.schools;
+  if (region) list = list.filter(s => s.지역 === region);
+  if (search) list = list.filter(s => s.학교명.includes(search));
+  list.sort((a, b) => a.학교명.localeCompare(b.학교명, 'ko'));
+  list.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.학교코드;
+    const hasDept = (s[`departments_${state.year}`] || []).length > 0;
+    o.textContent = `${s.학교명} (${s.지역})${hasDept ? ' ✦' : ''}`;
+    sel.appendChild(o);
+  });
+  if (current && [...sel.options].some(o => o.value === current)) sel.value = current;
+}
+
+function populateDeptSelect(baseCode, preselectDept) {
+  const school = state.schools.find(s => s.학교코드 === baseCode);
+  const deptSel = document.getElementById('dept-sel');
+  const depts = (school && school[`departments_${state.year}`]) || [];
+  if (!depts.length) { deptSel.style.display = 'none'; deptSel.innerHTML = ''; return null; }
+  deptSel.style.display = '';
+  deptSel.innerHTML = depts.map(d =>
+    `<option value="${d.dept}">${d.dept}</option>`
+  ).join('');
+  if (preselectDept && depts.some(d => d.dept === preselectDept)) deptSel.value = preselectDept;
+  return deptSel.value;
+}
+
+async function onSchoolChange(baseCode, preselectDept, preselectPicks) {
+  state.selectedBaseCode = baseCode;
+  const dept = populateDeptSelect(baseCode, preselectDept);
+  let code;
+  if (dept) {
+    const school = state.schools.find(s => s.학교코드 === baseCode);
+    const matched = (school[`departments_${state.year}`] || []).find(d => d.dept === dept);
+    code = matched ? matched.code : baseCode;
+    state.selectedDept = dept;
+  } else {
+    code = baseCode;
+    state.selectedDept = null;
+  }
+  await loadCurriculum(code, preselectPicks);
+}
+
+async function loadCurriculum(code, preselectPicks) {
+  const url = `data/curriculum_${state.year}/${encodeURIComponent(code)}.json`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('not found');
+    state.curriculum = await res.json();
+    state.selectedCode = code;
+    state.userSelections = new Set(preselectPicks || []);
+    state.activePreset = null;
+    render();
+    pushUrl();
+  } catch (e) {
+    document.getElementById('curriculum-area').innerHTML =
+      `<div class="placeholder">해당 학교의 편제표 데이터를 찾지 못했습니다 (${state.year}학년도).<br><span style="font-size:11px;">code: ${code}</span></div>`;
+    document.getElementById('counter-panel').style.display = 'none';
+    document.getElementById('presets').style.display = 'none';
+  }
+}
+
+function applyPreset(presetKey) {
+  if (!state.curriculum) return;
+  const preset = PRESETS[presetKey];
+  if (!preset) return;
+
+  state.userSelections.clear();
+  state.activePreset = presetKey;
+
+  state.curriculum.groups.forEach((group, gi) => {
+    if (group.division === '지정') return;
+    const m = (group.selectCount || '').match(/택\s*(\d+)/);
+    const required = m ? parseInt(m[1]) : 0;
+    if (!required) return;
+    const activeSems = (group.semesters || []).map((s, i) => s ? i : -1).filter(i => i >= 0);
+
+    const scored = group.subjects.map((subj, si) => {
+      let score = -1;
+      const idx = preset.priority.indexOf(subj.name);
+      if (idx >= 0) score = 1000 - idx;
+      else {
+        for (let pi = 0; pi < preset.priority.length; pi++) {
+          const p = preset.priority[pi];
+          const clean = subj.name.replace('*','').trim();
+          if (subj.name.includes(p) || p.includes(clean)) { score = 500 - pi; break; }
+        }
+      }
+      return { si, subj, score };
+    });
+
+    activeSems.forEach(semIdx => {
+      const sorted = [...scored].filter(x => x.score >= 0).sort((a, b) => b.score - a.score);
+      const picked = sorted.slice(0, required);
+      if (picked.length < required) {
+        const rest = scored.filter(x => !picked.includes(x)).slice(0, required - picked.length);
+        picked.push(...rest);
+      }
+      picked.forEach(x => state.userSelections.add(`g${gi}-s${x.si}-sem${semIdx}`));
+    });
+  });
+  render();
+  pushUrl();
+  showToast(`'${preset.name}' 계열 추천 조합을 적용했습니다 (편집 가능)`);
+}
+
+function render() {
+  if (!state.curriculum) return;
+  const area = document.getElementById('curriculum-area');
+  const school = state.schools.find(s => s.학교코드 === state.selectedBaseCode);
+
+  const metaParts = [];
+  if (school) {
+    metaParts.push(`<strong>${school.학교명}</strong>`);
+    if (state.selectedDept) metaParts.push(`<span style="color:var(--accent);">[${state.selectedDept}]</span>`);
+    metaParts.push(school.지역);
+    metaParts.push(`1학년 ${school['1학년학급수']} · 2학년 ${school['2학년학급수']} · 3학년 ${school['3학년학급수']}학급`);
+  } else {
+    metaParts.push(state.selectedCode);
+  }
+  document.getElementById('school-meta').innerHTML = metaParts.join(' · ');
+
+  document.getElementById('presets').style.display = '';
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === state.activePreset);
+  });
+
+  let html = `
+    <div class="legend">
+      <span><span class="type-badge type-공통">공</span> 공통</span>
+      <span><span class="type-badge type-일반">일</span> 일반선택</span>
+      <span><span class="type-badge type-진로">진</span> 진로선택</span>
+      <span><span class="type-badge type-융합">융</span> 융합선택</span>
+      <span style="margin-left:auto;"><span class="sample" style="background:var(--accent-soft);"></span> 학교 지정</span>
+      <span><span class="sample" style="background:var(--accent);"></span> 내가 선택</span>
+      <span><span class="sample" style="background:repeating-linear-gradient(45deg,transparent,transparent 4px,#e8e2d4 4px,#e8e2d4 5px);"></span> 미운영 학기</span>
+    </div>
+  `;
+
+  state.curriculum.groups.forEach((group, gi) => { html += renderGroup(group, gi); });
+  area.innerHTML = html;
+
+  area.querySelectorAll('td.sem-cell.selectable').forEach(cell => {
+    cell.addEventListener('click', onCellClick);
+  });
+
+  document.getElementById('counter-panel').style.display = '';
+  updateCounter();
+}
+
+function renderGroup(group, gi) {
+  const isFixed = group.division === '지정';
+
+  let headerPills = '';
+  if (isFixed) {
+    headerPills = '<span class="pill">학교 지정 — 전 학생 이수</span>';
+  } else {
+    const sc = group.selectCount || '';
+    const m = sc.match(/택\s*(\d+)/);
+    const required = m ? parseInt(m[1]) : null;
+    const activeSems = (group.semesters || []).map((s, i) => s ? i : -1).filter(i => i >= 0);
+    const perSem = [0,0,0,0,0,0];
+    group.subjects.forEach((subj, si) => {
+      for (let i = 0; i < 6; i++) {
+        if (state.userSelections.has(`g${gi}-s${si}-sem${i}`)) perSem[i]++;
+      }
+    });
+    let cls = 'pill';
+    let txt = sc;
+    if (required) {
+      const issues = activeSems.filter(i => perSem[i] !== required);
+      if (issues.length === 0 && activeSems.length > 0) {
+        cls = 'pill ok'; txt = `✓ ${sc} 충족`;
+      } else if (activeSems.some(i => perSem[i] > required)) {
+        cls = 'pill err'; txt = `초과: ${activeSems.map(i=>`${SEMESTER_LABELS[i]}=${perSem[i]}`).join(' ')}`;
+      } else if (activeSems.some(i => perSem[i] > 0)) {
+        cls = 'pill warn'; txt = `진행중: ${activeSems.map(i=>`${SEMESTER_LABELS[i]} ${perSem[i]}/${required}`).join(' · ')}`;
+      }
+    }
+    headerPills = `
+      <span class="${cls}">${escapeHtml(txt)}</span>
+      <span class="pill">과목당 ${group.groupCredit || group.subjects[0]?.opCredit || '?'}학점</span>
+      <span class="pill">운영: ${activeSems.map(i => SEMESTER_LABELS[i]).join(', ') || '-'}</span>
+    `;
+  }
+
+  let html = `
+    <div class="group-card" data-group-idx="${gi}">
+      <div class="group-header">
+        <span class="division-num">${escapeHtml(group.division)}</span>
+        <h2>${isFixed ? '공통·필수 이수 과목' : '선택 과목 그룹'}</h2>
+        <div class="group-meta">${headerPills}</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left; padding-left:12px;">과목명</th>
+            <th>교과군</th>
+            ${SEMESTER_LABELS.map(l => `<th>${l}</th>`).join('')}
+            <th>학점</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  group.subjects.forEach((subj, si) => {
+    const semCredits = subj.semCredits || [];
+    const credit = subj.opCredit || group.groupCredit || subj.basic || '';
+    let total = 0;
+    let cells = '';
+    for (let i = 0; i < 6; i++) {
+      if (isFixed) {
+        const c = semCredits[i] || '';
+        if (c) total += parseFloat(c) || 0;
+        cells += `<td class="sem-cell ${c ? 'has-credit' : ''}">${c || ''}</td>`;
+      } else {
+        const semOk = group.semesters && group.semesters[i];
+        if (!semOk) {
+          cells += `<td class="sem-cell disabled-sem"></td>`;
+        } else {
+          const key = `g${gi}-s${si}-sem${i}`;
+          const selected = state.userSelections.has(key);
+          if (selected) total += parseFloat(credit) || 0;
+          cells += `<td class="sem-cell selectable ${selected ? 'selected' : ''}" data-key="${key}">${selected ? credit : ''}</td>`;
+        }
+      }
+    }
+    html += `
+      <tr>
+        <td class="subject-name">
+          ${subj.type ? `<span class="type-badge type-${subj.type}">${subj.type[0]}</span>` : ''}
+          ${escapeHtml(subj.name)}
+        </td>
+        <td class="group-cell">${escapeHtml(subj.group || '')}</td>
+        ${cells}
+        <td style="font-family:'Iowan Old Style','Georgia',serif; color: var(--ink-soft);">${isFixed ? (total || '') : credit}</td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table></div>`;
+  return html;
+}
+
+function onCellClick(e) {
+  const cell = e.currentTarget;
+  const key = cell.dataset.key;
+  if (state.userSelections.has(key)) state.userSelections.delete(key);
+  else state.userSelections.add(key);
+  state.activePreset = null;
+  render();
+  pushUrl();
+}
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  state.userSelections.clear();
+  state.activePreset = null;
+  render();
+  pushUrl();
+});
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+});
+
+document.getElementById('share-btn').addEventListener('click', async () => {
+  const url = window.location.origin + window.location.pathname + serializeStateToUrl();
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast('공유 링크가 복사되었습니다');
+  } catch (e) {
+    prompt('아래 링크를 복사하세요:', url);
+  }
+});
+
+function updateCounter() {
+  if (!state.curriculum) return;
+  let total = 0;
+  const groupTotals = {};
+  const groupStatus = [];
+
+  state.curriculum.groups.forEach((group, gi) => {
+    const isFixed = group.division === '지정';
+    if (isFixed) {
+      group.subjects.forEach(subj => {
+        (subj.semCredits || []).forEach(c => {
+          const n = parseFloat(c) || 0;
+          total += n;
+          const g = subj.group || '기타';
+          groupTotals[g] = (groupTotals[g] || 0) + n;
+        });
+      });
+    } else {
+      const perSemester = [0,0,0,0,0,0];
+      group.subjects.forEach((subj, si) => {
+        for (let i = 0; i < 6; i++) {
+          const key = `g${gi}-s${si}-sem${i}`;
+          if (state.userSelections.has(key)) {
+            const credit = parseFloat(subj.opCredit || group.groupCredit || 0) || 0;
+            total += credit;
+            const g = subj.group || '기타';
+            groupTotals[g] = (groupTotals[g] || 0) + credit;
+            perSemester[i]++;
+          }
+        }
+      });
+      const requiredText = group.selectCount || '';
+      const m = requiredText.match(/택\s*(\d+)/);
+      const required = m ? parseInt(m[1]) : null;
+      const activeSems = (group.semesters || []).map((s, i) => s ? i : -1).filter(i => i >= 0);
+      let status = 'ok';
+      let msg = '';
+      if (required != null) {
+        const issues = [];
+        activeSems.forEach(i => {
+          if (perSemester[i] !== required) issues.push(`${SEMESTER_LABELS[i]} ${perSemester[i]}/${required}`);
+        });
+        if (issues.length === 0) { msg = `✓ ${required}과목씩 충족`; status = 'satisfied'; }
+        else { msg = issues.join(' · '); status = activeSems.some(i => perSemester[i] > required) ? 'violated' : 'warned'; }
+      } else {
+        msg = activeSems.map(i => `${SEMESTER_LABELS[i]} ${perSemester[i]}`).join(' · ') || '-';
+      }
+      groupStatus.push({ division: group.division, msg, status });
+    }
+  });
+
+  document.getElementById('total-credits').textContent = total;
+  document.getElementById('progress-fill').style.width = `${Math.min(100, total/192*100)}%`;
+
+  const ord = ['국어','수학','영어','사회','과학','한국사','체육','예술','기술·가정','정보','제2외국어','한문','교양','정보·통신','기타'];
+  const breakdown = Object.entries(groupTotals).sort((a, b) => {
+    const ai = ord.indexOf(a[0]); const bi = ord.indexOf(b[0]);
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+  });
+  document.getElementById('group-breakdown').innerHTML = breakdown.map(([k, v]) =>
+    `<div class="group-summary"><span class="label">${escapeHtml(k)}</span><span class="val">${v}</span></div>`
+  ).join('') || '<div class="group-summary" style="font-style:italic;">(아직 없음)</div>';
+
+  document.getElementById('group-status').innerHTML = groupStatus.length
+    ? groupStatus.map(g =>
+        `<div class="group-summary ${g.status}">
+          <span class="label">${escapeHtml(g.division)}</span><span class="val">${escapeHtml(g.msg)}</span>
+        </div>`
+      ).join('')
+    : '<div class="group-summary" style="font-style:italic;">선택 그룹 없음</div>';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+document.getElementById('year-sel').addEventListener('change', e => {
+  state.year = e.target.value;
+  populateSchoolSelect();
+  if (state.selectedBaseCode) onSchoolChange(state.selectedBaseCode, state.selectedDept, null);
+  else pushUrl();
+});
+document.getElementById('region-sel').addEventListener('change', populateSchoolSelect);
+document.getElementById('school-search').addEventListener('input', populateSchoolSelect);
+document.getElementById('school-sel').addEventListener('change', e => {
+  const code = e.target.value;
+  if (code) onSchoolChange(code, null, null);
+});
+document.getElementById('dept-sel').addEventListener('change', e => {
+  const dept = e.target.value;
+  state.selectedDept = dept;
+  const school = state.schools.find(s => s.학교코드 === state.selectedBaseCode);
+  const matched = (school[`departments_${state.year}`] || []).find(d => d.dept === dept);
+  if (matched) loadCurriculum(matched.code, null);
+});
+
+loadSchools();
+</script>
+</body>
+</html>
