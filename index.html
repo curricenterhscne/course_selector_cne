@@ -216,6 +216,10 @@
   .group-summary.violated { color: var(--accent); }
   .group-summary.warned { color: var(--warn); }
   .group-summary.satisfied { color: var(--ok); }
+  .eval-badge { display:inline-block; font-size:9px; padding:1px 4px; border-radius:2px; background:#e0ddd5; color:var(--ink-soft); margin-left:4px; vertical-align:middle; font-family:'Pretendard',sans-serif; font-weight:500; }
+  td.sem-cell.soonjeung { background: var(--warn-soft); color: var(--warn); cursor: pointer; font-size: 11px; }
+  td.sem-cell.soonjeung.selected-soonjeung { background: var(--warn); color: #fff; font-weight: 700; font-size: 11px; }
+  td.sem-cell.soonjeung:hover:not(.selected-soonjeung) { opacity: 0.75; }
 
   .legend {
     display: flex; gap: 12px; flex-wrap: wrap;
@@ -293,6 +297,9 @@
       <span><span class="num" id="total-credits">0</span> / 192</span>
     </div>
     <div class="progress-bar"><div id="progress-fill" style="width: 0%;"></div></div>
+
+    <div id="soonjeung-row" style="display:none; margin-top:8px;"></div>
+    <div id="changche-row" style="display:none; margin-top:4px;"></div>
 
     <h3 style="margin-top: 14px;">교과군별</h3>
     <div id="group-breakdown"></div>
@@ -526,14 +533,22 @@ function applyPreset(presetKey) {
       return { si, subj, score };
     });
 
+    // 그룹 내 중복 이수 방지: 학기를 순서대로 돌며 아직 선택 안 된 과목 우선
+    const pickedSis = new Set();
     activeSems.forEach(semIdx => {
-      const sorted = [...scored].filter(x => x.score >= 0).sort((a, b) => b.score - a.score);
-      const picked = sorted.slice(0, required);
+      const unpicked = scored.filter(x => !pickedSis.has(x.si));
+      const candidates = [
+        ...unpicked.filter(x => x.score >= 0).sort((a, b) => b.score - a.score),
+        ...unpicked.filter(x => x.score < 0),
+      ];
+      const picked = candidates.slice(0, required);
       if (picked.length < required) {
-        const rest = scored.filter(x => !picked.includes(x)).slice(0, required - picked.length);
-        picked.push(...rest);
+        console.warn(`[preset] g${gi} "${group.division}" ${SEMESTER_LABELS[semIdx]}: 후보 부족 (${picked.length}/${required})`);
       }
-      picked.forEach(x => state.userSelections.add(`g${gi}-s${x.si}-sem${semIdx}`));
+      picked.forEach(x => {
+        state.userSelections.add(`g${gi}-s${x.si}-sem${semIdx}`);
+        pickedSis.add(x.si);
+      });
     });
   });
   render();
@@ -577,7 +592,7 @@ function render() {
   state.curriculum.groups.forEach((group, gi) => { html += renderGroup(group, gi); });
   area.innerHTML = html;
 
-  area.querySelectorAll('td.sem-cell.selectable').forEach(cell => {
+  area.querySelectorAll('td.sem-cell.selectable, td.sem-cell.soonjeung').forEach(cell => {
     cell.addEventListener('click', onCellClick);
   });
 
@@ -591,6 +606,25 @@ function renderGroup(group, gi) {
   let headerPills = '';
   if (isFixed) {
     headerPills = '<span class="pill">학교 지정 — 전 학생 이수</span>';
+  } else if (group.isSoonjeung) {
+    const activeSjSems = [...new Set(
+      group.subjects.flatMap(s => (s.semCredits || []).map((c, i) => c ? i : -1).filter(i => i >= 0))
+    )].sort((a, b) => a - b);
+    const perSem = [0,0,0,0,0,0];
+    group.subjects.forEach((subj, si) => {
+      for (let i = 0; i < 6; i++) {
+        if (state.userSelections.has(`g${gi}-s${si}-sem${i}`)) perSem[i]++;
+      }
+    });
+    const anySelected = activeSjSems.some(i => perSem[i] > 0);
+    const statusPill = anySelected
+      ? `<span class="pill" style="background:var(--warn-soft);color:var(--warn);">✓ 희망과목 선택됨</span>`
+      : '';
+    headerPills = `
+      <span class="pill" style="background:var(--warn-soft);color:var(--warn);">순증 — 희망자 수강</span>
+      ${statusPill}
+      <span class="pill">운영: ${activeSjSems.map(i => SEMESTER_LABELS[i]).join(', ') || '-'}</span>
+    `;
   } else {
     const sc = group.selectCount || '';
     const m = sc.match(/택\s*(\d+)/);
@@ -650,6 +684,16 @@ function renderGroup(group, gi) {
         const c = semCredits[i] || '';
         if (c) total += parseFloat(c) || 0;
         cells += `<td class="sem-cell ${c ? 'has-credit' : ''}">${c || ''}</td>`;
+      } else if (group.isSoonjeung) {
+        const c = semCredits[i] || '';
+        if (!c) {
+          cells += `<td class="sem-cell"></td>`;
+        } else {
+          const key = `g${gi}-s${si}-sem${i}`;
+          const selected = state.userSelections.has(key);
+          if (selected) total += parseFloat(c) || 0;
+          cells += `<td class="sem-cell soonjeung${selected ? ' selected-soonjeung' : ''}" data-key="${key}" title="희망자 수강 과목입니다">(${c})</td>`;
+        }
       } else {
         const semOk = group.semesters && group.semesters[i];
         if (!semOk) {
@@ -662,11 +706,16 @@ function renderGroup(group, gi) {
         }
       }
     }
+    const achMap = { '5단계': '5단', '3단계': '3단', 'P': 'P/F' };
+    const achVal = subj.achievement || '';
+    const evalBadge = achVal
+      ? `<span class="eval-badge">${achMap[achVal] || achVal}</span>`
+      : '';
     html += `
       <tr>
         <td class="subject-name">
           ${subj.type ? `<span class="type-badge type-${subj.type}">${subj.type[0]}</span>` : ''}
-          ${escapeHtml(subj.name)}
+          ${escapeHtml(subj.name)}${evalBadge}
         </td>
         <td class="group-cell">${escapeHtml(subj.group || '')}</td>
         ${cells}
@@ -713,11 +762,22 @@ document.getElementById('share-btn').addEventListener('click', async () => {
 function updateCounter() {
   if (!state.curriculum) return;
   let total = 0;
+  let soonjeungTotal = 0;
   const groupTotals = {};
   const groupStatus = [];
 
   state.curriculum.groups.forEach((group, gi) => {
     const isFixed = group.division === '지정';
+    if (group.isSoonjeung) {
+      group.subjects.forEach((subj, si) => {
+        for (let i = 0; i < 6; i++) {
+          if (state.userSelections.has(`g${gi}-s${si}-sem${i}`)) {
+            soonjeungTotal += parseFloat((subj.semCredits || [])[i]) || 0;
+          }
+        }
+      });
+      return;
+    }
     if (isFixed) {
       group.subjects.forEach(subj => {
         (subj.semCredits || []).forEach(c => {
@@ -761,16 +821,62 @@ function updateCounter() {
     }
   });
 
-  document.getElementById('total-credits').textContent = total;
-  document.getElementById('progress-fill').style.width = `${Math.min(100, total/192*100)}%`;
+  // 순증 (희망자) 행 표시 — 192 진행률에 포함하지 않음
+  const fmtC = n => n % 1 === 0 ? String(n) : n.toFixed(1);
+  const sjRow = document.getElementById('soonjeung-row');
+  if (soonjeungTotal > 0) {
+    sjRow.style.display = '';
+    sjRow.innerHTML =
+      `<div class="group-summary" style="color:var(--warn);">
+        <span class="label">순증 (희망자)</span>
+        <span class="val">${fmtC(soonjeungTotal)}학점</span>
+      </div>`;
+  } else {
+    sjRow.style.display = 'none';
+  }
 
-  const ord = ['국어','수학','영어','사회','과학','한국사','체육','예술','기술·가정','정보','제2외국어','한문','교양','정보·통신','기타'];
+  // 창의적 체험활동 학점 계산 (changche: {"0":[...], "1":[...], "2":[...]} → 학기별 합/16)
+  const cc = state.curriculum.changche;
+  let changcheTotal = 0;
+  const changcheSems = [0, 0, 0, 0, 0, 0];
+  if (cc) {
+    for (let i = 0; i < 6; i++) {
+      const sum = Object.values(cc).reduce((acc, arr) => acc + (parseFloat(arr[i]) || 0), 0);
+      changcheSems[i] = sum / 16;
+    }
+    changcheTotal = changcheSems.reduce((a, b) => a + b, 0);
+    total += changcheTotal;
+  }
+
+  document.getElementById('total-credits').textContent = fmtC(total);
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = `${Math.min(100, total / 192 * 100)}%`;
+  fill.style.background = total >= 192 ? 'var(--ok)' : 'var(--accent)';
+
+  // 창체 행 표시
+  const ccRow = document.getElementById('changche-row');
+  if (cc) {
+    const semDetail = SEMESTER_LABELS.map((lbl, i) => `${lbl}: ${fmtC(changcheSems[i])}`).join(' · ');
+    ccRow.style.display = '';
+    ccRow.innerHTML =
+      `<div class="group-summary">
+        <span class="label">창의적 체험활동</span>
+        <span class="val">${fmtC(changcheTotal)}학점</span>
+      </div>
+      <div style="font-size:11px; color:var(--ink-soft); padding: 0 2px 4px; line-height:1.6;">${semDetail}</div>`;
+  } else {
+    ccRow.style.display = 'none';
+  }
+
+  // 정보를 과학 바로 아래 배치 (과학(자연)/정보과학 인접 표시)
+  const ord = ['국어','수학','영어','사회','과학','정보','한국사','체육','예술','기술·가정','제2외국어','한문','교양','정보·통신','기타'];
+  const labelMap = { '과학': '과학(자연)', '정보': '정보과학' };
   const breakdown = Object.entries(groupTotals).sort((a, b) => {
     const ai = ord.indexOf(a[0]); const bi = ord.indexOf(b[0]);
     return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
   });
   document.getElementById('group-breakdown').innerHTML = breakdown.map(([k, v]) =>
-    `<div class="group-summary"><span class="label">${escapeHtml(k)}</span><span class="val">${v}</span></div>`
+    `<div class="group-summary"><span class="label">${escapeHtml(labelMap[k] || k)}</span><span class="val">${v}</span></div>`
   ).join('') || '<div class="group-summary" style="font-style:italic;">(아직 없음)</div>';
 
   document.getElementById('group-status').innerHTML = groupStatus.length
