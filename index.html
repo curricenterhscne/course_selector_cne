@@ -58,9 +58,15 @@
     border: 1px solid var(--line); background: var(--panel); border-radius: 2px;
   }
   .toolbar select { min-width: 120px; }
-  .toolbar #school-sel { min-width: 240px; }
   .toolbar #dept-sel { min-width: 130px; }
-  .toolbar input[type="text"] { width: 140px; }
+  .finder-wrap { position: relative; }
+  #school-finder { min-width: 260px; font: inherit; padding: 5px 9px; border: 1px solid var(--line); background: var(--panel); border-radius: 2px; }
+  #finder-dropdown { position: absolute; top: calc(100% + 2px); left: 0; z-index: 200; background: var(--panel); border: 1px solid var(--line); border-radius: 2px; list-style: none; margin: 0; padding: 0; min-width: 100%; max-height: 280px; overflow-y: auto; box-shadow: 0 3px 10px rgba(0,0,0,0.09); }
+  #finder-dropdown li { padding: 7px 12px; cursor: pointer; font-size: 12.5px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  #finder-dropdown li:last-child { border-bottom: none; }
+  #finder-dropdown li:hover, #finder-dropdown li.kbd-active { background: var(--accent-soft); color: var(--accent); }
+  .finder-region { color: var(--ink-soft); font-size: 11px; margin-left: 5px; }
+  .finder-tick { color: var(--accent); margin-left: 3px; }
   .school-meta {
     font-size: 11.5px; color: var(--ink-soft);
     border-left: 1px solid var(--line); padding-left: 10px;
@@ -241,6 +247,51 @@
     pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15);
   }
   .toast.show { opacity: 1; }
+
+  /* 저장/불러오기 버튼 */
+  .save-btn {
+    padding: 5px 11px; border: 1px solid var(--ok); background: transparent;
+    cursor: pointer; font: inherit; font-size: 12px; color: var(--ok); border-radius: 2px;
+  }
+  .save-btn:hover { background: var(--ok-soft); }
+  .load-btn-lbl {
+    padding: 5px 11px; border: 1px solid var(--line); background: transparent;
+    cursor: pointer; font: inherit; font-size: 12px; color: var(--ink-soft);
+    display: inline-block; border-radius: 2px;
+  }
+  .load-btn-lbl:hover { background: var(--row-2); }
+  .save-wrap { position: relative; }
+  .save-dropdown {
+    position: absolute; top: calc(100% + 4px); left: 0; z-index: 300;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 2px;
+    list-style: none; margin: 0; padding: 0;
+    min-width: 190px; box-shadow: 0 3px 10px rgba(0,0,0,0.09);
+  }
+  .save-dropdown li {
+    padding: 8px 14px; cursor: pointer; font-size: 12px;
+    border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  .save-dropdown li:last-child { border-bottom: none; }
+  .save-dropdown li:hover { background: var(--ok-soft); color: var(--ok); }
+
+  /* 인쇄 / PDF 내보내기 스타일 */
+  body.printing .toolbar,
+  body.printing .presets,
+  body.printing .legend { display: none !important; }
+  body.printing header { position: static !important; border-bottom: 2px solid #000; }
+  body.printing td.sem-cell.selected {
+    background: transparent !important; color: var(--ink) !important; font-weight: 700;
+  }
+  body.printing td.sem-cell.selected::before { content: '✓ '; }
+  body.printing aside.counter-panel { position: static !important; max-height: none !important; }
+  @media print {
+    .toolbar, .presets, .legend { display: none !important; }
+    header { position: static !important; }
+    td.sem-cell.selected { background: transparent !important; color: #000 !important; font-weight: 700; }
+    td.sem-cell.selected::before { content: '✓ '; }
+    aside.counter-panel { position: static !important; max-height: none !important; }
+    @page { size: A4 landscape; margin: 10mm; }
+  }
 </style>
 </head>
 <body>
@@ -257,20 +308,17 @@
       <option value="2025">2025학년도 입학생</option>
     </select>
 
-    <label for="region-sel">지역</label>
-    <select id="region-sel"><option value="">전체</option></select>
-
-    <label for="school-sel">학교</label>
-    <select id="school-sel"><option value="">학교를 선택하세요</option></select>
+    <div class="finder-wrap">
+      <input type="text" id="school-finder" placeholder="학교명 또는 지역 입력 (예: 천안, 외고)" autocomplete="off" />
+      <ul id="finder-dropdown" style="display:none;"></ul>
+    </div>
 
     <select id="dept-sel" style="display:none;"></select>
-
-    <input type="text" id="school-search" placeholder="학교명 검색…" />
 
     <div class="school-meta" id="school-meta">학교를 선택하면 정보가 표시됩니다</div>
   </div>
   <div class="presets" id="presets" style="display:none;">
-    <span class="label">계열 프리셋</span>
+    <span class="label">계열별 추천 과목</span>
     <button class="preset-btn" data-preset="science">이공·자연</button>
     <button class="preset-btn" data-preset="engineering">공학·IT</button>
     <button class="preset-btn" data-preset="commerce">경상·사회</button>
@@ -279,6 +327,16 @@
     <button class="preset-btn" data-preset="sports">체육</button>
     <button class="clear-btn" id="clear-btn">선택 비우기</button>
     <button class="share-btn" id="share-btn">🔗 공유 링크 복사</button>
+    <div class="save-wrap">
+      <button class="save-btn" id="save-menu-btn">💾 저장 ▾</button>
+      <ul class="save-dropdown" id="save-dropdown" style="display:none;">
+        <li data-action="json">JSON으로 저장 (재작업용)</li>
+        <li data-action="pdf">PDF로 저장 (인쇄·제출용)</li>
+        <li data-action="xlsx">Excel로 저장 (재가공용)</li>
+      </ul>
+    </div>
+    <label class="load-btn-lbl" for="load-input">📂 불러오기</label>
+    <input type="file" id="load-input" accept=".json" style="display:none;">
   </div>
 </header>
 
@@ -381,6 +439,16 @@ const state = {
 
 const SEMESTER_LABELS = ['1-1', '1-2', '2-1', '2-2', '3-1', '3-2'];
 
+const REQUIRED_CREDITS = {
+  '국어': 8, '수학': 8, '영어': 8, '사회': 8, '한국사': 6,
+  '과학': 8, '체육': 8, '예술': 6,
+};
+const GROUPED_CATEGORY = {
+  label: '기·정·외·한·교',
+  members: ['기술·가정', '정보', '정보과학', '제2외국어', '한문', '교양', '정보·통신'],
+  required: 12,
+};
+
 function serializeStateToUrl() {
   const p = new URLSearchParams();
   p.set('y', state.year);
@@ -412,49 +480,68 @@ function pushUrl() {
 async function loadSchools() {
   const res = await fetch('data/schools.json');
   state.schools = await res.json();
-  populateRegions();
-  populateSchoolSelect();
 
   const url = deserializeUrl();
   state.year = url.year;
   document.getElementById('year-sel').value = state.year;
 
   if (url.schoolBase) {
-    document.getElementById('school-sel').value = url.schoolBase;
+    const school = state.schools.find(s => s.학교코드 === url.schoolBase);
+    if (school) document.getElementById('school-finder').value = school.학교명;
     state.selectedBaseCode = url.schoolBase;
     onSchoolChange(url.schoolBase, url.dept, url.picks);
   }
 }
 
-function populateRegions() {
-  const regions = [...new Set(state.schools.map(s => s.지역).filter(Boolean))].sort();
-  const sel = document.getElementById('region-sel');
-  regions.forEach(r => {
-    const o = document.createElement('option');
-    o.value = r; o.textContent = r;
-    sel.appendChild(o);
+const SCHOOL_ABBREV = {
+  '외고': '외국어고', '과고': '과학고', '예고': '예술고',
+  '체고': '체육고', '자사고': '자율형사립', '디예고': '디자인예술고',
+};
+
+function getFinderMatches(query) {
+  const q = query.trim();
+  if (!q) return [];
+  const expanded = SCHOOL_ABBREV[q] || q;
+  const seen = new Set();
+  const prefix = [], contains = [], regionMatch = [];
+  state.schools.forEach(s => {
+    const name = s.학교명 || '';
+    const reg = s.지역 || '';
+    const hasDept = (s[`departments_${state.year}`] || []).length > 0;
+    const item = { code: s.학교코드, name, region: reg, hasDept };
+    if (seen.has(s.학교코드)) return;
+    const targets = expanded !== q ? [q, expanded] : [q];
+    let matched = false;
+    for (const t of targets) {
+      if (name.startsWith(t)) { prefix.push(item); seen.add(s.학교코드); matched = true; break; }
+      if (name.includes(t))   { contains.push(item); seen.add(s.학교코드); matched = true; break; }
+    }
+    if (!matched && targets.some(t => reg.includes(t))) {
+      regionMatch.push(item); seen.add(s.학교코드);
+    }
   });
+  return [...prefix, ...contains, ...regionMatch].slice(0, 10);
 }
 
-function populateSchoolSelect() {
-  const region = document.getElementById('region-sel').value;
-  const search = document.getElementById('school-search').value.trim();
-  const sel = document.getElementById('school-sel');
-  const current = sel.value;
-  sel.innerHTML = '<option value="">학교를 선택하세요</option>';
-  let list = state.schools;
-  if (region) list = list.filter(s => s.지역 === region);
-  if (search) list = list.filter(s => s.학교명.includes(search));
-  list.sort((a, b) => a.학교명.localeCompare(b.학교명, 'ko'));
-  list.forEach(s => {
-    const o = document.createElement('option');
-    o.value = s.학교코드;
-    const hasDept = (s[`departments_${state.year}`] || []).length > 0;
-    o.textContent = `${s.학교명} (${s.지역})${hasDept ? ' ✦' : ''}`;
-    sel.appendChild(o);
-  });
-  if (current && [...sel.options].some(o => o.value === current)) sel.value = current;
+function renderFinderDropdown(matches) {
+  const ul = document.getElementById('finder-dropdown');
+  if (!matches.length) { ul.style.display = 'none'; return; }
+  ul.innerHTML = matches.map((m, i) =>
+    `<li data-code="${escapeHtml(m.code)}" data-name="${escapeHtml(m.name)}" data-idx="${i}">
+      ${escapeHtml(m.name)}<span class="finder-region">${escapeHtml(m.region)}</span>${m.hasDept ? '<span class="finder-tick">✦</span>' : ''}
+    </li>`
+  ).join('');
+  ul.style.display = '';
 }
+
+function selectFinderSchool(code, name) {
+  document.getElementById('school-finder').value = name;
+  document.getElementById('finder-dropdown').style.display = 'none';
+  finderHighlight = -1;
+  onSchoolChange(code, null, null);
+}
+
+let finderHighlight = -1;
 
 function populateDeptSelect(baseCode, preselectDept) {
   const school = state.schools.find(s => s.학교코드 === baseCode);
@@ -553,7 +640,7 @@ function applyPreset(presetKey) {
   });
   render();
   pushUrl();
-  showToast(`'${preset.name}' 계열 추천 조합을 적용했습니다 (편집 가능)`);
+  showToast(`'${preset.name}' 추천 과목을 적용했습니다. 직접 수정할 수 있어요`);
 }
 
 function render() {
@@ -566,7 +653,6 @@ function render() {
     metaParts.push(`<strong>${school.학교명}</strong>`);
     if (state.selectedDept) metaParts.push(`<span style="color:var(--accent);">[${state.selectedDept}]</span>`);
     metaParts.push(school.지역);
-    metaParts.push(`1학년 ${school['1학년학급수']} · 2학년 ${school['2학년학급수']} · 3학년 ${school['3학년학급수']}학급`);
   } else {
     metaParts.push(state.selectedCode);
   }
@@ -868,16 +954,48 @@ function updateCounter() {
     ccRow.style.display = 'none';
   }
 
-  // 정보를 과학 바로 아래 배치 (과학(자연)/정보과학 인접 표시)
+  // 교과군별 표시 (필수 이수학점 충족 여부 포함)
   const ord = ['국어','수학','영어','사회','과학','정보','한국사','체육','예술','기술·가정','제2외국어','한문','교양','정보·통신','기타'];
   const labelMap = { '과학': '과학(자연)', '정보': '정보과학' };
-  const breakdown = Object.entries(groupTotals).sort((a, b) => {
-    const ai = ord.indexOf(a[0]); const bi = ord.indexOf(b[0]);
-    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+
+  // 합산 그룹(기·정·외·한·교) 집계
+  let groupedSum = 0;
+  const groupedKeys = new Set(GROUPED_CATEGORY.members);
+
+  const mainBreakdown = Object.entries(groupTotals)
+    .filter(([k]) => !groupedKeys.has(k) && !groupedKeys.has(labelMap[k]))
+    .sort((a, b) => {
+      const ai = ord.indexOf(a[0]); const bi = ord.indexOf(b[0]);
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+    });
+
+  Object.entries(groupTotals).forEach(([k, v]) => {
+    if (groupedKeys.has(k)) groupedSum += v;
   });
-  document.getElementById('group-breakdown').innerHTML = breakdown.map(([k, v]) =>
-    `<div class="group-summary"><span class="label">${escapeHtml(labelMap[k] || k)}</span><span class="val">${v}</span></div>`
-  ).join('') || '<div class="group-summary" style="font-style:italic;">(아직 없음)</div>';
+
+  function renderCreditRow(displayLabel, earned, required) {
+    if (required == null) {
+      return `<div class="group-summary"><span class="label">${escapeHtml(displayLabel)}</span><span class="val">${fmtC(earned)}</span></div>`;
+    }
+    const met = earned >= required;
+    const cls = met ? 'satisfied' : 'violated';
+    const icon = met ? '✓' : '✗';
+    return `<div class="group-summary ${cls}">
+      <span class="label">${icon} ${escapeHtml(displayLabel)}</span>
+      <span class="val">${fmtC(earned)} / ${required}</span>
+    </div>`;
+  }
+
+  let breakdownHtml = mainBreakdown.map(([k, v]) =>
+    renderCreditRow(labelMap[k] || k, v, REQUIRED_CREDITS[k] ?? null)
+  ).join('');
+
+  if (groupedSum > 0) {
+    breakdownHtml += renderCreditRow(GROUPED_CATEGORY.label, groupedSum, GROUPED_CATEGORY.required);
+  }
+
+  document.getElementById('group-breakdown').innerHTML =
+    breakdownHtml || '<div class="group-summary" style="font-style:italic;">(아직 없음)</div>';
 
   document.getElementById('group-status').innerHTML = groupStatus.length
     ? groupStatus.map(g =>
@@ -902,16 +1020,49 @@ function escapeHtml(s) {
 
 document.getElementById('year-sel').addEventListener('change', e => {
   state.year = e.target.value;
-  populateSchoolSelect();
   if (state.selectedBaseCode) onSchoolChange(state.selectedBaseCode, state.selectedDept, null);
   else pushUrl();
 });
-document.getElementById('region-sel').addEventListener('change', populateSchoolSelect);
-document.getElementById('school-search').addEventListener('input', populateSchoolSelect);
-document.getElementById('school-sel').addEventListener('change', e => {
-  const code = e.target.value;
-  if (code) onSchoolChange(code, null, null);
-});
+
+(function initFinder() {
+  const input = document.getElementById('school-finder');
+  const ul = document.getElementById('finder-dropdown');
+
+  input.addEventListener('input', () => {
+    finderHighlight = -1;
+    renderFinderDropdown(getFinderMatches(input.value));
+  });
+
+  input.addEventListener('keydown', e => {
+    const items = ul.querySelectorAll('li');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      finderHighlight = Math.min(finderHighlight + 1, items.length - 1);
+      items.forEach((li, i) => li.classList.toggle('kbd-active', i === finderHighlight));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      finderHighlight = Math.max(finderHighlight - 1, 0);
+      items.forEach((li, i) => li.classList.toggle('kbd-active', i === finderHighlight));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const active = finderHighlight >= 0 ? items[finderHighlight] : items[0];
+      if (active) selectFinderSchool(active.dataset.code, active.dataset.name);
+    } else if (e.key === 'Escape') {
+      ul.style.display = 'none';
+      finderHighlight = -1;
+    }
+  });
+
+  ul.addEventListener('click', e => {
+    const li = e.target.closest('li');
+    if (li) selectFinderSchool(li.dataset.code, li.dataset.name);
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.finder-wrap')) ul.style.display = 'none';
+  });
+})();
 document.getElementById('dept-sel').addEventListener('change', e => {
   const dept = e.target.value;
   state.selectedDept = dept;
@@ -919,6 +1070,269 @@ document.getElementById('dept-sel').addEventListener('change', e => {
   const matched = (school[`departments_${state.year}`] || []).find(d => d.dept === dept);
   if (matched) loadCurriculum(matched.code, null);
 });
+
+// ── 저장/불러오기 ────────────────────────────────────────────────────────────
+
+async function ensureLibrary(globalName, url) {
+  if (window[globalName]) return;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = url;
+    s.onload = res;
+    s.onerror = () => rej(new Error('라이브러리 로드 실패: ' + url));
+    document.head.appendChild(s);
+  });
+}
+
+function _buildSummary() {
+  const fmtC = n => n % 1 === 0 ? n : parseFloat(n.toFixed(1));
+  let totalCredits = 0, changcheCredits = 0;
+  const groupBreakdown = {};
+  const cc = state.curriculum.changche;
+  if (cc) {
+    for (let i = 0; i < 6; i++) {
+      changcheCredits += Object.values(cc).reduce((a, arr) => a + (parseFloat(arr[i]) || 0), 0) / 16;
+    }
+    totalCredits += changcheCredits;
+  }
+  state.curriculum.groups.forEach((group, gi) => {
+    if (group.isSoonjeung) return;
+    if (group.division === '지정') {
+      group.subjects.forEach(subj => {
+        (subj.semCredits || []).forEach(c => {
+          const n = parseFloat(c) || 0;
+          totalCredits += n;
+          const g = subj.group || '기타';
+          groupBreakdown[g] = (groupBreakdown[g] || 0) + n;
+        });
+      });
+    } else {
+      group.subjects.forEach((subj, si) => {
+        for (let i = 0; i < 6; i++) {
+          if (state.userSelections.has(`g${gi}-s${si}-sem${i}`)) {
+            const credit = parseFloat(subj.opCredit || group.groupCredit || 0) || 0;
+            totalCredits += credit;
+            const g = subj.group || '기타';
+            groupBreakdown[g] = (groupBreakdown[g] || 0) + credit;
+          }
+        }
+      });
+    }
+  });
+  return {
+    totalCredits: fmtC(totalCredits),
+    changcheCredits: fmtC(changcheCredits),
+    groupBreakdown,
+  };
+}
+
+function exportToJSON() {
+  if (!state.curriculum) return showToast('먼저 학교를 선택하세요');
+  const school = state.schools.find(s => s.학교코드 === state.selectedBaseCode);
+  const kst = new Date(Date.now() + 9 * 3600000);
+  const exportedAt = kst.toISOString().replace('Z', '+09:00');
+  const d = kst.toISOString().slice(0, 16).replace('T', '_').replace(/:/g, '');
+  const deptPart = state.selectedDept ? `_${state.selectedDept}` : '';
+  const baseName = (school?.학교명 || state.selectedBaseCode).replace(/[\\/:*?"<>|]/g, '_');
+
+  const payload = {
+    schema: 'cne_course_selector/v1',
+    exportedAt,
+    year: state.year,
+    schoolCode: state.selectedBaseCode,
+    schoolName: school ? school.학교명 : state.selectedBaseCode,
+    department: state.selectedDept || null,
+    selections: [...state.userSelections],
+    preset: state.activePreset || null,
+    summary: _buildSummary(),
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `과목선택_${baseName}${deptPart}_${d}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  showToast('JSON 파일로 저장했습니다');
+}
+
+async function importFromJSON(file) {
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (data.schema !== 'cne_course_selector/v1') {
+      return showToast('지원하지 않는 파일입니다 (schema 오류)');
+    }
+    if (!data.schoolCode) return showToast('파일에 학교 정보가 없습니다');
+
+    if (data.year && data.year !== state.year) {
+      state.year = data.year;
+      document.getElementById('year-sel').value = state.year;
+    }
+    const school = state.schools.find(s => s.학교코드 === data.schoolCode);
+    if (!school) return showToast(`학교를 찾을 수 없습니다: ${data.schoolCode}`);
+
+    document.getElementById('school-finder').value = school.학교명;
+    state.selectedBaseCode = data.schoolCode;
+
+    await onSchoolChange(data.schoolCode, data.department || null, data.selections || []);
+
+    if (data.preset) {
+      state.activePreset = data.preset;
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.preset === data.preset);
+      });
+    }
+    showToast('시뮬레이션 상태를 복원했습니다');
+  } catch (e) {
+    showToast('파일 읽기 오류: ' + e.message);
+  }
+}
+
+async function exportToPDF() {
+  if (!state.curriculum) return showToast('먼저 학교를 선택하세요');
+  showToast('PDF 생성 중...');
+  try {
+    await ensureLibrary('html2pdf', 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+    const school = state.schools.find(s => s.학교코드 === state.selectedBaseCode);
+    const schoolName = school ? school.학교명 : state.selectedBaseCode;
+    const deptStr = state.selectedDept ? `_${state.selectedDept}` : '';
+    const kst = new Date(Date.now() + 9 * 3600000);
+    const d = kst.toISOString().slice(0, 16).replace('T', '_').replace(/:/g, '');
+    const fname = `과목선택_${schoolName}${deptStr}_${d}.pdf`.replace(/[\\/:*?"<>|]/g, '_');
+
+    document.body.classList.add('printing');
+    await window.html2pdf().from(document.querySelector('main')).set({
+      margin: [8, 8, 8, 8],
+      filename: fname,
+      image: { type: 'jpeg', quality: 0.9 },
+      html2canvas: { scale: 1.4, useCORS: true, letterRendering: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+    }).save();
+    document.body.classList.remove('printing');
+    showToast('PDF 저장 완료');
+  } catch (e) {
+    document.body.classList.remove('printing');
+    showToast('PDF 저장 실패: ' + e.message);
+  }
+}
+
+async function exportToXLSX() {
+  if (!state.curriculum) return showToast('먼저 학교를 선택하세요');
+  showToast('Excel 생성 중...');
+  try {
+    await ensureLibrary('XLSX', 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+    const school = state.schools.find(s => s.학교코드 === state.selectedBaseCode);
+    const schoolName = school ? school.학교명 : state.selectedBaseCode;
+    const deptStr = state.selectedDept ? `_${state.selectedDept}` : '';
+    const kst = new Date(Date.now() + 9 * 3600000);
+    const d = kst.toISOString().slice(0, 16).replace('T', '_').replace(/:/g, '');
+    const fname = `과목선택_${schoolName}${deptStr}_${d}.xlsx`.replace(/[\\/:*?"<>|]/g, '_');
+
+    const wb = window.XLSX.utils.book_new();
+
+    // Sheet 1: 편제표
+    const rows1 = [['구분', '교과군', '과목명', ...SEMESTER_LABELS, '학점', '선택여부']];
+    state.curriculum.groups.forEach((group, gi) => {
+      const isFixed = group.division === '지정';
+      group.subjects.forEach((subj, si) => {
+        const semCredits = subj.semCredits || [];
+        const credit = subj.opCredit || group.groupCredit || subj.basic || '';
+        const semCells = [];
+        let picked = false;
+        for (let i = 0; i < 6; i++) {
+          if (isFixed) {
+            semCells.push(semCredits[i] || '');
+          } else if (group.isSoonjeung) {
+            const c = semCredits[i] || '';
+            const sel = c && state.userSelections.has(`g${gi}-s${si}-sem${i}`);
+            if (sel) picked = true;
+            semCells.push(c ? (sel ? `○(${c})` : `(${c})`) : '');
+          } else {
+            const ok = group.semesters && group.semesters[i];
+            const sel = ok && state.userSelections.has(`g${gi}-s${si}-sem${i}`);
+            if (sel) picked = true;
+            semCells.push(!ok ? '-' : (sel ? '○' : ''));
+          }
+        }
+        rows1.push([group.division || '', subj.group || '', subj.name || '', ...semCells, credit, picked ? '○' : '']);
+      });
+    });
+    window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.aoa_to_sheet(rows1), '편제표');
+
+    // Sheet 2: 요약
+    const sum = _buildSummary();
+    const fmtC = n => n % 1 === 0 ? String(n) : String(parseFloat(n.toFixed(1)));
+    const rows2 = [
+      ['항목', '이수학점', '필수학점'],
+      ['총 이수학점', fmtC(sum.totalCredits), 192],
+      ['창의적 체험활동', fmtC(sum.changcheCredits), ''],
+      [],
+      ['교과군', '이수학점', '필수학점'],
+    ];
+    Object.entries(sum.groupBreakdown).forEach(([k, v]) => {
+      rows2.push([k, fmtC(v), REQUIRED_CREDITS[k] ?? '']);
+    });
+    window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.aoa_to_sheet(rows2), '요약');
+
+    // Sheet 3: 선택 그룹 현황
+    const rows3 = [['그룹', '운영학기', '내가 선택한 과목']];
+    state.curriculum.groups.forEach((group, gi) => {
+      if (group.division === '지정') return;
+      const activeSems = (group.semesters || []).map((s, i) => s ? SEMESTER_LABELS[i] : null).filter(Boolean);
+      const pickedNames = [];
+      group.subjects.forEach((subj, si) => {
+        for (let i = 0; i < 6; i++) {
+          if (state.userSelections.has(`g${gi}-s${si}-sem${i}`)) {
+            pickedNames.push(`${subj.name}(${SEMESTER_LABELS[i]})`);
+          }
+        }
+      });
+      rows3.push([group.division || '', activeSems.join(', '), pickedNames.join(', ') || '(없음)']);
+    });
+    window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.aoa_to_sheet(rows3), '선택그룹');
+
+    window.XLSX.writeFile(wb, fname);
+    showToast('Excel 저장 완료');
+  } catch (e) {
+    showToast('Excel 저장 실패: ' + e.message);
+  }
+}
+
+// 저장 드롭다운 토글
+(function initSaveLoad() {
+  const saveBtn = document.getElementById('save-menu-btn');
+  const saveDropdown = document.getElementById('save-dropdown');
+  saveBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    saveDropdown.style.display = saveDropdown.style.display === 'block' ? 'none' : 'block';
+  });
+  saveDropdown.addEventListener('click', e => {
+    const li = e.target.closest('li[data-action]');
+    if (!li) return;
+    saveDropdown.style.display = 'none';
+    const action = li.dataset.action;
+    if (action === 'json') exportToJSON();
+    else if (action === 'pdf') exportToPDF();
+    else if (action === 'xlsx') exportToXLSX();
+  });
+  document.addEventListener('click', () => { saveDropdown.style.display = 'none'; });
+
+  // 파일 불러오기
+  document.getElementById('load-input').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) importFromJSON(file);
+    e.target.value = '';
+  });
+
+  // 드래그앤드롭
+  document.addEventListener('dragover', e => e.preventDefault());
+  document.addEventListener('drop', e => {
+    e.preventDefault();
+    const file = [...(e.dataTransfer.files || [])].find(f => f.name.endsWith('.json'));
+    if (file) importFromJSON(file);
+  });
+})();
 
 loadSchools();
 </script>

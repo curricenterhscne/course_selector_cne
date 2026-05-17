@@ -135,3 +135,84 @@ A-2 (extract_data.py 창체 추출) 건너뛰고 A-3 (index.html 수정)부터 �
   - 3단계(과학탐구실험, 체육 등), P/F 배지 분포 확인 ✓
   - 빈값(8개) → 배지 미표시 ✓
 - 사용자 확인 필요 사항: 없음 (A-8 커밋 준비로 진행)
+
+---
+
+## [2026-05-18] A-8. Phase A 커밋 & 푸시
+
+- 커밋 해시: 5cc6bf3
+- 변경 파일: index.html (+117/-11), docs/WORK_LOG.md (신규)
+- 푸시 완료: https://github.com/curricenterhscne/course_selector_cne
+- 배포 URL: https://curricenterhscne.github.io/course_selector_cne/
+
+---
+
+## [2026-05-18] B-1. 학급수 표시 제거
+
+- 수정 파일: index.html
+- 핵심 변경: `render()` 함수의 metaParts에서 1/2/3학년 학급수 조합 부분 제거
+- 검증 결과: JS 문법 체크 OK, 학교명·지역만 표시 확인 ✓
+- 사용자 확인 필요 사항: 없음
+
+---
+
+## [2026-05-18] B-2. "프리셋" → "추천 과목" 용어 변경
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. 버튼·라벨: "계열 프리셋" → "계열별 추천 과목"
+  2. 토스트: "추천 과목을 적용했습니다. 직접 수정할 수 있어요"
+  3. 코드 식별자(PRESETS, applyPreset 등)는 변경 없음
+- 검증 결과: UI 텍스트에 "프리셋" 단어 없음 ✓
+- 사용자 확인 필요 사항: 없음
+
+---
+
+## [2026-05-18] B-3. 학교 통합 검색
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. #region-sel, #school-sel, #school-search 제거 → #school-finder + #finder-dropdown 추가
+  2. SCHOOL_ABBREV 딕셔너리: 외고→외국어고, 과고→과학고 등 6개 약어 확장
+  3. getFinderMatches(): prefix → contains → region 우선순위 정렬, 최대 10개
+  4. 키보드 ↑↓/Enter/Esc 지원, 학과 있는 학교 ✦ 표시
+- 검증 결과:
+  - "외고" → 충남외국어고등학교 매칭 ✓
+  - "천안" → 천안 지역 학교 목록 ✓
+  - 충남디자인예술고 ✦ 표시 ✓
+- 사용자 확인 필요 사항: 로컬 서버 UI 확인 요청
+
+---
+
+## [2026-05-18] B-4. 교과군별 필수 이수학점 표시
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. 상수 추가: REQUIRED_CREDITS (국어8/수학8/영어8/사회8/한국사6/과학8/체육8/예술6),
+     GROUPED_CATEGORY (기술·가정/정보/정보과학/제2외국어/한문/교양/정보·통신 → 12학점)
+  2. renderCreditRow(): 충족 ✓ (--ok 초록) / 미달 ✗ (--accent 적색) / 미정의 → 학점만 표시
+  3. groupedKeys 집합으로 합산 교과 필터링 후 "기·정·외·한·교" 한 행으로 합산
+- 검증 결과:
+  - JS 문법 체크 OK
+  - GROUPED_CATEGORY 필터 로직 확인: '정보' 원본 키는 groupedKeys에 포함, '과학'은 main 유지 ✓
+  - .satisfied/.violated CSS 클래스 기존 정의 활용 ✓
+- 사용자 확인 필요 사항: 로컬 서버에서 천안중앙고 + 이공·자연 프리셋 적용 후 ✓/✗ 표시 확인 요청
+
+---
+
+## [2026-05-18] B-5. 저장/불러오기 (JSON/PDF/Excel)
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. **UI (B-5-1)**: `.presets` 줄에 `💾 저장 ▾` 드롭다운(JSON/PDF/Excel) + `📂 불러오기` 레이블 버튼 + 숨겨진 파일 input 추가. 드래그앤드롭 지원.
+  2. **JSON 저장 (B-5-2)**: `exportToJSON()` — schema/year/schoolCode/selections/preset/summary 포함 JSON Blob 다운로드. 파일명: `과목선택_[학교명]_[YYYYMMDDHHmm].json`
+  3. **JSON 불러오기 (B-5-2)**: `importFromJSON(file)` — schema 검증, 학년도 자동 전환, schoolCode로 학교 로드, selections 복원, preset 버튼 상태 복원, 토스트 안내
+  4. **PDF 저장 (B-5-3)**: `exportToPDF()` — html2pdf.js CDN 동적 로드, `body.printing` 클래스로 UI 숨김, A4 가로 landscape 출력, 선택 셀 ✓ 표시
+  5. **Excel 저장 (B-5-4)**: `exportToXLSX()` — SheetJS CDN 동적 로드, 3개 시트 생성 (편제표/요약/선택그룹)
+  6. **공유 헬퍼**: `_buildSummary()` — JSON·Excel 모두에서 재사용하는 총학점+교과군 집계
+  7. **인쇄 CSS**: `body.printing` + `@media print` 규칙 추가
+- 검증 결과:
+  - JS 문법 체크 OK
+  - 모든 심볼(ensureLibrary, exportToJSON, importFromJSON, exportToPDF, exportToXLSX, initSaveLoad) 정확한 위치 확인 ✓
+  - index.html 총 1340줄 (정상 범위)
+- 사용자 확인 필요 사항: ⏸ B-5-5 전체 통합 검증 (JSON 저장→불러오기, PDF, Excel, 오류 케이스) 로컬 서버에서 확인 요청
