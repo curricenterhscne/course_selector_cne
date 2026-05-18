@@ -100,6 +100,30 @@
     transition: all .15s; color: var(--ink-2); position: relative;
   }
   .icon-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
+  a.icon-btn { text-decoration: none; color: var(--ink-2); }
+  a.icon-btn:hover { text-decoration: none; }
+  .guide-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--brand);
+    background: var(--brand-soft);
+    color: var(--brand);
+    border-radius: var(--r);
+    font: inherit; font-size: 13px; font-weight: 600;
+    text-decoration: none;
+    transition: all .15s; cursor: pointer;
+    white-space: nowrap;
+  }
+  .guide-btn:hover { background: var(--brand); color: #fff; text-decoration: none; }
+  .placeholder-guide-link {
+    display: inline-block; margin-top: 16px;
+    padding: 10px 20px;
+    background: var(--brand); color: #fff;
+    border-radius: var(--r); font-size: 13.5px; font-weight: 600;
+    text-decoration: none; box-shadow: var(--shadow-brand);
+    transition: transform .15s;
+  }
+  .placeholder-guide-link:hover { transform: translateY(-1px); text-decoration: none; }
 
   .h-toolbar {
     display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
@@ -285,6 +309,8 @@
     .reco-btn { flex-shrink: 0; }
     .reco-label { display: none; }
     .right-tools { margin-left: 0; flex-shrink: 0; }
+    .guide-btn span { display: none; }
+    .guide-btn { padding: 0; width: 34px; height: 34px; justify-content: center; }
     .legend { display: none; }
     aside.counter-panel {
       position: fixed !important;
@@ -538,6 +564,10 @@
     </div>
     <span class="h-subtitle">충청남도교육청 · 2025·2026학년도 입학생</span>
     <div class="h-actions">
+      <a href="guide.html" class="guide-btn" id="guide-link" title="사용 설명서">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>사용 설명서</span>
+      </a>
       <div class="save-wrap">
         <button class="icon-btn" id="save-menu-btn" title="저장">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -591,6 +621,8 @@
     <div class="placeholder" id="placeholder">
       좌측 상단에서 학교를 선택하면 3개년 교육과정 편제표가 표시됩니다.<br>
       과목 셀을 클릭하여 선택을 시뮬레이션할 수 있습니다.
+      <br>
+      <a href="guide.html" class="placeholder-guide-link">처음 사용하신다면 사용 설명서를 먼저 읽어 보세요 →</a>
     </div>
   </section>
 

@@ -334,3 +334,36 @@ A-2 (extract_data.py 창체 추출) 건너뛰고 A-3 (index.html 수정)부터 �
 - 커밋 메시지: feat: 디자인 리뉴얼 — 시안 A 적용 (Toss/Notion 모던 톤)
 - 배포 URL: https://curricenterhscne.github.io/course_selector_cne/
 - 검증 결과: JS 문법 OK, push 성공 ✓
+
+---
+
+## [2026-05-18] G-0. 학생 가이드 통합 — 사전 점검
+
+- 수정 파일: 없음 (확인만)
+- 확인 결과:
+  - D-1~D-6 완료 기록 확인 ✓
+  - guide.html 프로젝트 루트 존재 ✓
+  - 디자인 토큰(--brand, Pretendard) 본 사이트와 동일 ✓
+  - "실습으로 돌아가기" 링크 href="./" ✓
+- 사용자 선택: 헤더 버튼=아이콘+텍스트, placeholder 안내 링크=추가
+
+---
+
+## [2026-05-18] G-1. guide.html 배치 확인
+
+- 수정 파일: 없음
+- 확인 결과: 이미 루트에 위치, 링크 경로 정상 ✓
+
+---
+
+## [2026-05-18] G-2. index.html 헤더에 사용 설명서 진입 버튼 추가
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. `.guide-btn` CSS: 보라 테두리+배경 버튼, 호버 시 보라 채움
+  2. `a.icon-btn` CSS: 링크 요소에도 아이콘 버튼 스타일 적용
+  3. `.placeholder-guide-link` CSS: 진입 유도 버튼
+  4. 헤더 `.h-actions` 맨 앞에 `<a class="guide-btn">` 추가 (책 아이콘 + "사용 설명서")
+  5. 모바일 768px: `.guide-btn span { display: none }`, 버튼 34×34px로 압축
+  6. placeholder에 "처음 사용하신다면 사용 설명서를 먼저 읽어 보세요 →" 링크 추가
+- 검증 결과: JS 문법 OK ✓
