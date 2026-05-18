@@ -296,19 +296,23 @@
       flex-direction: column; gap: 0; padding: 0; color: #fff;
     }
     aside.counter-panel.sheet-open {
-      max-height: 78vh; overflow-y: auto; border-radius: 22px 22px 0 0;
+      max-height: 78vh; overflow: hidden; border-radius: 22px 22px 0 0;
     }
+    .sheet-scroll {
+      overflow-y: auto; flex: 1;
+      -webkit-overflow-scrolling: touch;
+      display: none;
+    }
+    aside.counter-panel.sheet-open .sheet-scroll { display: block; }
     .mobile-dock {
       display: flex !important; align-items: center;
       justify-content: space-between;
       padding: 0 18px; height: 62px; flex-shrink: 0;
       cursor: pointer; color: #fff;
     }
-    /* 시트 열린 상태에서 mobile-dock을 상단에 sticky 고정 */
+    /* 시트 열린 상태에서 mobile-dock 하단 구분선 */
     aside.counter-panel.sheet-open .mobile-dock {
-      position: sticky; top: 0; z-index: 2;
-      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
-      border-bottom: 1px solid rgba(255,255,255,.15);
+      border-bottom: 1px solid rgba(255,255,255,.2);
     }
     .md-label { font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.04em; }
     .md-value { font-size: 20px; font-weight: 800; }
@@ -596,6 +600,7 @@
       </div>
       <span class="md-expand">상세 ▴</span>
     </div>
+    <div class="sheet-scroll">
     <div class="progress-card" id="progress-card">
       <div class="pc-label">총 이수학점</div>
       <div class="pc-value">
@@ -618,6 +623,7 @@
         <div id="group-status"></div>
       </div>
     </div>
+    </div><!-- /.sheet-scroll -->
   </aside>
 </main>
 
