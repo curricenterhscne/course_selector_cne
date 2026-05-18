@@ -216,3 +216,111 @@ A-2 (extract_data.py 창체 추출) 건너뛰고 A-3 (index.html 수정)부터 �
   - 모든 심볼(ensureLibrary, exportToJSON, importFromJSON, exportToPDF, exportToXLSX, initSaveLoad) 정확한 위치 확인 ✓
   - index.html 총 1340줄 (정상 범위)
 - 사용자 확인 필요 사항: ⏸ B-5-5 전체 통합 검증 (JSON 저장→불러오기, PDF, Excel, 오류 케이스) 로컬 서버에서 확인 요청
+
+---
+
+## [2026-05-18] B-6. Phase B 커밋 & 푸시
+
+- 커밋 해시: e35799c
+- 변경 파일: index.html (+522/-54), docs/WORK_LOG.md (+81), docs/ 3개 파일 신규
+- 푸시 완료: https://github.com/curricenterhscne/course_selector_cne
+- 배포 URL: https://curricenterhscne.github.io/course_selector_cne/
+
+---
+
+## [2026-05-18] D-0. 사전 점검
+
+- 수정 파일: 없음 (분석만)
+- 핵심 발견:
+  - 시안 파일 2개 확인: mockup_a_desktop.html (668줄), mockup_a_mobile.html (970줄)
+  - Phase A·B 완료 확인 (커밋 e35799c)
+  - 변수 매핑: --accent→--brand, --ink-soft→--ink-3, --line-strong→--ink-2, --row-1/2→--line-soft/--bg-2
+  - 타입배지: .type-badge → .type-dot (D-3 적용 예정)
+  - 모바일: renderMobile() 신규 작성 필요 (D-5)
+- 사용자 확인 필요 사항: 완료
+
+---
+
+## [2026-05-18] D-1. 디자인 토큰 교체
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. Pretendard CDN 추가 (viewport-fit=cover도 추가)
+  2. `:root` 전체 교체: 시안 A 토큰(brand/ink/line/shadow/radius 변수군) + 호환성 aliases
+  3. body: 'Noto Serif KR' → 'Pretendard', font-feature-settings: 'tnum' 추가
+  4. `.num` 클래스 tabular-nums 전역 추가
+  5. serif 잔재 제거: .division-num, td.sem-cell, .total-row .num, renderGroup 인라인, td.subject-name
+  6. .group-header 배경: #1a1815 → var(--ink)
+- 검증 결과: JS OK, 구 hex값·serif 잔재 0건 ✓
+- 사용자 확인 필요 사항: 로컬 서버에서 보라톤·Pretendard 폰트 적용 확인 요청
+
+---
+
+## [2026-05-18] D-2. 헤더·도구모음 리디자인
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. `<header>` HTML 전체 교체: logo-badge 칩, SVG 아이콘 버튼(저장·불러오기·공유), year-pill 토글, 검색창(SVG 아이콘+search-wrap), school-meta 칩(:empty CSS 제어), reco-row
+  2. CSS 교체: `.toolbar`/`.presets`/`.preset-btn` 등 → `.h-top`/`.h-toolbar`/`.year-pills`/`.search-wrap`/`.reco-row`/`.reco-btn`/`.icon-btn`/`.tool-btn`
+  3. JS: `.preset-btn` → `.reco-btn` 전체 치환, year-sel → year-pill 이벤트/동기화(3곳), `.finder-wrap` → `.search-wrap` (click-outside 핸들러)
+  4. print CSS 클래스명 동기화
+- 검증 결과: JS 문법 OK, `finder-wrap` 잔재 0건 ✓
+- 사용자 확인 필요 사항: 로컬 서버에서 헤더 외관, 검색·년도·저장 동작 확인 요청
+
+---
+
+## [2026-05-18] D-3. 편제표 그룹 카드 리디자인
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. `.group-card`: border-radius·overflow·transition 추가, `.group-card.fixed` 그라데이션 배경
+  2. `.group-header` → `.group-head`: 흰 배경+border-bottom, `.group-mark` 28×28 박스 (fixed는 brand 색)
+  3. 그룹 meta pill 색상: 어두운 다크 → ok-soft/warn-soft/danger-soft 라이트 톤
+  4. `th` 배경: `#f3efe4` → `var(--line-soft)`, border-bottom 토큰화
+  5. `td.sem-cell.selectable:hover`: `#ede6d4` → `var(--brand-softer)`
+  6. `td.sem-cell.disabled-sem` stripe 색: `#e8e2d4` → `var(--line)`
+  7. `.type-badge` → `.type-dot`: 6×6 원형 점, 텍스트 제거
+  8. renderGroup HTML: `class="group-card"` → fixed 조건부 클래스, `group-header` → `group-head`, `division-num` → `group-mark`, type-badge → type-dot
+  9. legend: type-badge → type-dot, sample stripe 색 토큰화
+- 검증 결과: JS 문법 OK, group-header/type-badge 잔재 0건 ✓
+- 사용자 확인 필요 사항: 로컬 서버에서 편제표 카드 외관, 선택 셀 색상, 타입 점 표시 확인 요청
+
+---
+
+## [2026-05-18] D-4. 우측 패널 + 진행률 카드
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. `aside.counter-panel`: border/bg 제거, flex column + gap 12px 레이아웃
+  2. `.progress-card`: 그라데이션 보라 카드 (brand→brand-2), 반원 장식 `::after`, `.achieved` 시 초록 전환
+  3. `.pc-label/pc-value/pc-bar`: 36px 숫자, 흰 진행 바, 달성 메시지 CSS 제어
+  4. `.summary-card` + `.panel-section`: 흰 카드 + 교과군/선택그룹 섹션 분리
+  5. `#soonjeung-row/:not(:empty)`, `#changche-row/:not(:empty)`: 카드형 스타일
+  6. `.eval-badge` 배경 토큰화
+  7. `updateCounter()`에 `progress-card.achieved` 클래스 토글 한 줄 추가
+- 검증 결과: JS 문법 OK, total-row/progress-bar 잔재 0건 ✓
+- 사용자 확인 필요 사항: 로컬 서버에서 우측 패널(그라데이션 카드·교과군·선택그룹), 192학점 달성 시 녹색 전환 확인 요청
+
+---
+
+## [2026-05-18] D-5. 모바일 반응형
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. main: 1fr 360px 그리드, 768px 이하 display:block, padding-bottom:88px
+  2. @media 768px: header 압축, reco-row 가로 스크롤 캐러셀, legend 숨김
+  3. aside: 768px에서 fixed 하단 도크(62px), .sheet-open 시 78vh 슬라이드 업
+  4. .mobile-dock: 하단 바 — "이수학점 N / 192" + "상세 ▴", 탭으로 시트 토글
+  5. .sheet-backdrop: 반투명 오버레이
+  6. renderMobile(): 창체 카드 + 1·2·3학년 아코디언 + 학기 탭 + subject-row 카드 목록
+  7. renderMobileSem(): 학기별 과목 행 렌더링
+  8. toggleGrade() / switchSem(): 아코디언·탭 DOM 조작
+  9. onMobileRowClick(): 모바일 과목 행 클릭 → state 토글 → render() → pushUrl()
+  10. toggleSheet(): 도크 탭 → counter-panel 슬라이드 업/다운 + backdrop
+  11. state.isMobile + matchMedia resize 리스너
+  12. updateCounter() 끝에 m-total 갱신 한 줄 추가
+- 검증 결과: JS 문법 OK, 6개 모바일 함수 정의 확인 ✓
+- 사용자 확인 필요 사항:
+  - Chrome DevTools 모바일 뷰(390×844)로 천안중앙고 선택 후 아코디언·탭·과목 선택 동작 확인
+  - 하단 도크 탭 → 시트 슬라이드 업 확인
+  - 데스크탑(1280px↑)에서 회귀 없음 확인

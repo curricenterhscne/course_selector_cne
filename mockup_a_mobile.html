@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>시안 A 모바일 — 모던 톤</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --bg-2: #f1f5f9;
+    --panel: #ffffff;
+    --ink: #0f172a;
+    --ink-2: #334155;
+    --ink-3: #64748b;
+    --ink-4: #94a3b8;
+    --line: #e2e8f0;
+    --line-soft: #f1f5f9;
+
+    --brand: #4f46e5;
+    --brand-2: #6366f1;
+    --brand-3: #818cf8;
+    --brand-soft: #eef2ff;
+    --brand-softer: #f5f3ff;
+
+    --ok: #059669;
+    --ok-soft: #d1fae5;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+    --danger: #dc2626;
+    --danger-soft: #fee2e2;
+
+    --r-sm: 6px;
+    --r: 10px;
+    --r-lg: 14px;
+    --r-xl: 20px;
+
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04);
+    --shadow: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+    --shadow-lg: 0 10px 30px -10px rgba(15,23,42,.12);
+    --shadow-up: 0 -8px 24px -6px rgba(15,23,42,.10);
+    --shadow-brand: 0 8px 24px -8px rgba(79,70,229,.4);
+
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); overscroll-behavior-y: contain; }
+  body {
+    font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    font-feature-settings: 'tnum';
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .num { font-feature-settings: 'tnum'; font-variant-numeric: tabular-nums; }
+  button { font-family: inherit; }
+
+  /* ====== 데모용 폰 프레임 ====== */
+  .phone-frame {
+    width: 390px;
+    margin: 24px auto;
+    background: var(--panel);
+    border: 12px solid #0f172a;
+    border-radius: 48px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.3);
+    height: 844px;
+  }
+  .phone-screen {
+    height: 100%;
+    overflow-y: auto;
+    background: var(--bg);
+    position: relative;
+    padding-bottom: 88px;
+  }
+  .phone-notch {
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 30px;
+    background: #0f172a;
+    border-radius: 0 0 18px 18px;
+    z-index: 200;
+  }
+  @media (max-width: 500px) {
+    .phone-frame {
+      width: 100%; margin: 0; border: 0; border-radius: 0;
+      height: 100vh; box-shadow: none;
+    }
+    .phone-notch { display: none; }
+  }
+
+  /* ====== 헤더 ====== */
+  header {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 36px 14px 10px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .h-top {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .logo {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14.5px; font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .logo-badge {
+    background: var(--brand);
+    color: #fff;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 99px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .year-mini {
+    background: var(--bg-2);
+    color: var(--ink-2);
+    font-size: 11.5px; font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 99px;
+  }
+  .h-icons { margin-left: auto; display: flex; gap: 4px; }
+  .icon-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: var(--r);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .icon-btn:active {
+    background: var(--brand-soft);
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+
+  /* 학교 칩 */
+  .school-bar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .school-chip-mb {
+    flex: 1;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 10px 14px;
+    border-radius: var(--r);
+    font-size: 13.5px; font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+  }
+  .school-chip-mb .school-icon {
+    color: var(--brand);
+    flex-shrink: 0;
+  }
+  .school-chip-mb .arrow { margin-left: auto; color: var(--ink-4); font-size: 12px; }
+
+  /* 추천 캐러셀 */
+  .reco-scroll {
+    display: flex; gap: 6px;
+    overflow-x: auto;
+    margin: 0 -14px;
+    padding: 2px 14px 4px;
+    scrollbar-width: none;
+  }
+  .reco-scroll::-webkit-scrollbar { display: none; }
+  .reco-btn {
+    flex-shrink: 0;
+    padding: 7px 13px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 99px;
+    font-size: 12.5px; font-weight: 600;
+    color: var(--ink-2);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .reco-btn:active {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+  .reco-btn.active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+    box-shadow: var(--shadow-brand);
+  }
+  .reco-btn.active::before {
+    content: '✓ ';
+    margin-right: 1px;
+  }
+
+  /* ====== 본문 ====== */
+  main { padding: 14px; }
+
+  /* 학년 아코디언 */
+  .grade-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .grade-card:active { border-color: var(--ink-4); }
+  .grade-head {
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--panel);
+    transition: background .15s;
+  }
+  .grade-head.open {
+    background: linear-gradient(180deg, var(--brand-softer) 0%, var(--panel) 100%);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .grade-num {
+    width: 32px; height: 32px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--r);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .grade-head.open .grade-num {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    box-shadow: var(--shadow-brand);
+  }
+  .grade-title-block { flex: 1; min-width: 0; }
+  .grade-title { font-size: 14.5px; font-weight: 700; letter-spacing: -0.01em; }
+  .grade-sub {
+    font-size: 11.5px; color: var(--ink-3); font-weight: 500;
+    margin-top: 1px;
+  }
+  .grade-status {
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
+  }
+  .grade-credit {
+    font-size: 18px; font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .grade-credit .unit { font-size: 11px; color: var(--ink-3); font-weight: 600; margin-left: 1px; }
+  .chevron {
+    transition: transform .2s;
+    color: var(--ink-3);
+    flex-shrink: 0;
+  }
+  .grade-head.open .chevron { transform: rotate(180deg); }
+
+  /* 학기 탭 */
+  .sem-tabs {
+    display: flex;
+    background: var(--bg);
+    padding: 8px;
+    gap: 4px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .sem-tab {
+    flex: 1;
+    padding: 9px 8px;
+    border: 0;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 12.5px; font-weight: 600;
+    color: var(--ink-3);
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .sem-tab.active {
+    background: var(--panel);
+    color: var(--ink);
+    box-shadow: var(--shadow-sm);
+  }
+  .sem-tab .sub {
+    display: block;
+    font-size: 9.5px;
+    color: var(--ink-4);
+    font-weight: 500;
+    margin-top: 1px;
+  }
+  .sem-tab.active .sub { color: var(--brand); }
+
+  /* 과목 그룹 */
+  .grade-body { padding: 14px; }
+  .subject-group {
+    margin-bottom: 16px;
+  }
+  .subject-group:last-child { margin-bottom: 0; }
+  .group-label {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .group-tag {
+    background: var(--ink);
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 99px;
+    letter-spacing: 0.02em;
+  }
+  .group-tag.fixed { background: var(--brand); }
+  .group-rule {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-2);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .group-rule.ok { color: var(--ok); }
+  .group-rule.warn { color: var(--warn); }
+  .group-rule.danger { color: var(--danger); }
+
+  /* 과목 행 */
+  .subject-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    margin-bottom: 5px;
+    min-height: 52px;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .subject-row:active { transform: scale(0.985); }
+  .subject-row.selected {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+    box-shadow: var(--shadow-brand);
+  }
+  .subject-row.locked {
+    background: var(--bg-2);
+    color: var(--ink-4);
+    cursor: not-allowed;
+    border-color: transparent;
+  }
+  .subject-row.fixed-row {
+    background: var(--brand-softer);
+    border-color: var(--brand-soft);
+    cursor: default;
+  }
+
+  /* 체크박스 */
+  .check-box {
+    width: 24px; height: 24px;
+    border: 1.5px solid var(--line);
+    border-radius: 7px;
+    background: var(--panel);
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    color: var(--ink-4);
+  }
+  .subject-row.selected .check-box {
+    background: #fff;
+    border-color: #fff;
+    color: var(--brand);
+  }
+  .subject-row.fixed-row .check-box {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+  }
+  .subject-row.locked .check-box {
+    background: transparent;
+    border-color: var(--line);
+    color: transparent;
+  }
+
+  /* 과목 정보 */
+  .subject-info { flex: 1; min-width: 0; }
+  .subject-name {
+    font-size: 14px; font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .subject-meta {
+    font-size: 11.5px;
+    color: var(--ink-3);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .subject-row.selected .subject-meta { color: rgba(255,255,255,0.8); }
+  .subject-row.locked .subject-meta { color: var(--ink-4); }
+  .subject-row.fixed-row .subject-name { color: var(--ink); }
+
+  /* 학점 배지 */
+  .subject-credit {
+    font-size: 14px; font-weight: 700;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+    padding: 4px 10px;
+    background: var(--bg-2);
+    border-radius: 7px;
+    min-width: 36px; text-align: center;
+    color: var(--ink-2);
+  }
+  .subject-row.selected .subject-credit {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+  }
+  .subject-row.fixed-row .subject-credit {
+    background: var(--brand);
+    color: #fff;
+  }
+  .subject-row.locked .subject-credit {
+    background: transparent;
+    color: var(--ink-4);
+  }
+
+  /* 타입 점 */
+  .type-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .type-공통 { background: #475569; }
+  .type-일반 { background: #3b82f6; }
+  .type-진로 { background: #ec4899; }
+  .type-융합 { background: #10b981; }
+
+  /* 창체 카드 */
+  .changche-card {
+    background: linear-gradient(135deg, var(--brand-soft) 0%, var(--brand-softer) 100%);
+    border: 1px solid var(--brand-soft);
+    border-radius: var(--r-lg);
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+  }
+  .changche-icon {
+    width: 36px; height: 36px;
+    background: var(--brand);
+    color: #fff;
+    border-radius: var(--r);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-brand);
+  }
+  .changche-main { flex: 1; }
+  .changche-title { font-size: 12px; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 0.04em; }
+  .changche-detail {
+    display: flex; align-items: baseline; gap: 6px;
+    margin-top: 2px;
+  }
+  .changche-num { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+  .changche-sub { font-size: 11.5px; color: var(--ink-3); font-weight: 500; }
+
+  /* ====== 하단 진행률 도크 ====== */
+  .progress-dock {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    padding: 14px 16px calc(14px + var(--safe-bottom));
+    z-index: 90;
+    color: #fff;
+    box-shadow: var(--shadow-up);
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .progress-dock::before {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .pd-row {
+    display: flex; align-items: center; gap: 12px;
+    position: relative; z-index: 1;
+  }
+  .pd-text-block { flex: 1; }
+  .pd-label {
+    font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    opacity: 0.85;
+  }
+  .pd-value {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.02em;
+    display: flex; align-items: baseline; gap: 5px;
+    margin-top: 2px;
+  }
+  .pd-value .of { font-size: 12px; opacity: 0.65; font-weight: 600; }
+  .pd-arrow {
+    opacity: 0.7;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .pd-bar {
+    height: 5px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 99px;
+    margin-top: 10px;
+    overflow: hidden;
+    position: relative; z-index: 1;
+  }
+  .pd-bar > div {
+    height: 100%; background: #fff;
+    border-radius: 99px;
+  }
+
+  /* ====== Bottom Sheet ====== */
+  .sheet-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(15,23,42,0.45);
+    z-index: 95;
+    display: none;
+    backdrop-filter: blur(4px);
+  }
+  .sheet-backdrop.show { display: block; }
+  .bottom-sheet {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: var(--panel);
+    border-radius: 22px 22px 0 0;
+    z-index: 96;
+    transform: translateY(100%);
+    transition: transform .28s cubic-bezier(.22,.6,.32,1);
+    max-height: 78%;
+    overflow-y: auto;
+    padding-bottom: calc(20px + var(--safe-bottom));
+  }
+  .bottom-sheet.show { transform: translateY(0); }
+  .sheet-handle {
+    width: 36px; height: 4px;
+    background: var(--line);
+    border-radius: 99px;
+    margin: 9px auto 0;
+  }
+  .sheet-head {
+    padding: 14px 18px 8px;
+    display: flex; align-items: center;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .sheet-head h2 { font-size: 17px; font-weight: 800; margin: 0; letter-spacing: -0.02em; }
+  .sheet-head .close-x {
+    margin-left: auto;
+    width: 28px; height: 28px;
+    border: 0; background: var(--bg-2);
+    border-radius: 50%;
+    color: var(--ink-3);
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .sheet-section { padding: 14px 18px; border-bottom: 1px solid var(--line-soft); }
+  .sheet-section:last-child { border-bottom: 0; }
+  .sheet-section-h {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-3);
+    margin: 0 0 10px;
+  }
+  .progress-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    color: #fff;
+    border-radius: var(--r-lg);
+    padding: 18px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-summary::after {
+    content: '';
+    position: absolute;
+    right: -20px; bottom: -20px;
+    width: 100px; height: 100px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .ps-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85; }
+  .ps-value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }
+  .ps-value .of { font-size: 14px; opacity: 0.65; font-weight: 600; }
+  .ps-bar { height: 6px; background: rgba(255,255,255,0.2); border-radius: 99px; margin-top: 12px; overflow: hidden; position: relative; z-index: 1; }
+  .ps-bar > div { height: 100%; background: #fff; border-radius: 99px; }
+
+  /* 영역별 그리드 */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .stat-cell {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12.5px; font-weight: 600;
+  }
+  .stat-cell.ok { background: var(--ok-soft); border-color: var(--ok-soft); }
+  .stat-cell .name { color: var(--ink-2); }
+  .stat-cell .val {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-weight: 700;
+  }
+  .stat-cell.ok .val { color: var(--ok); }
+  .stat-cell .of { font-size: 10.5px; color: var(--ink-4); font-weight: 600; }
+  .stat-cell .check {
+    color: var(--ok);
+    font-size: 12px;
+  }
+
+  /* 데모 라벨 */
+  .demo-label {
+    text-align: center;
+    color: var(--ink-2);
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 20px;
+    margin-bottom: 4px;
+  }
+  .demo-tip {
+    text-align: center;
+    color: var(--ink-3);
+    font-size: 12px;
+    margin-bottom: 22px;
+    font-weight: 500;
+  }
+  .demo-tip strong { color: var(--brand); }
+</style>
+</head>
+<body>
+
+<div class="demo-label">📱 시안 A 모바일 · 모던 톤 · iPhone 14 (390 × 844)</div>
+<div class="demo-tip">학년 카드를 탭해서 열고 닫기 · 하단 진행률을 탭하면 상세 시트가 열림</div>
+
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+
+  <div class="phone-screen" id="screen">
+
+    <!-- ====== 헤더 ====== -->
+    <header>
+      <div class="h-top">
+        <div class="logo">
+          <span class="logo-badge">고교학점제</span>
+          <span>과목 선택</span>
+        </div>
+        <span class="year-mini">2026</span>
+        <div class="h-icons">
+          <button class="icon-btn" title="저장">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button class="icon-btn" title="공유">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="school-bar">
+        <div class="school-chip-mb">
+          <svg class="school-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/>
+          </svg>
+          <span>천안중앙고등학교</span>
+          <span class="arrow">▾</span>
+        </div>
+      </div>
+
+      <div class="reco-scroll">
+        <button class="reco-btn active">이공·자연</button>
+        <button class="reco-btn">공학·IT</button>
+        <button class="reco-btn">경상·사회</button>
+        <button class="reco-btn">인문·어문</button>
+        <button class="reco-btn">예술</button>
+        <button class="reco-btn">체육</button>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- 창체 카드 -->
+      <div class="changche-card">
+        <div class="changche-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div class="changche-main">
+          <div class="changche-title">창의적 체험활동</div>
+          <div class="changche-detail">
+            <span class="changche-num num">18학점</span>
+            <span class="changche-sub">학기별 3씩 자동</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 1학년 (펼침) ====== -->
+      <div class="grade-card">
+        <div class="grade-head open" onclick="this.classList.toggle('open'); document.getElementById('g1-body').style.display = this.classList.contains('open') ? 'block' : 'none';">
+          <span class="grade-num">1</span>
+          <div class="grade-title-block">
+            <div class="grade-title">1학년</div>
+            <div class="grade-sub">공통 과목 · 자동 이수</div>
+          </div>
+          <div class="grade-status">
+            <span class="grade-credit num">38<span class="unit">학점</span></span>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+
+        <div id="g1-body">
+          <div class="sem-tabs">
+            <button class="sem-tab active">1학기<span class="sub">1-1</span></button>
+            <button class="sem-tab">2학기<span class="sub">1-2</span></button>
+          </div>
+
+          <div class="grade-body">
+            <div class="subject-group">
+              <div class="group-label">
+                <span class="group-tag fixed">공통</span>
+                <span class="group-rule">모두 자동 이수</span>
+              </div>
+
+              <div class="subject-row fixed-row">
+                <span class="check-box">✓</span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-공통"></span>
+                    공통국어1
+                  </div>
+                  <div class="subject-meta">국어 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">4</div>
+              </div>
+
+              <div class="subject-row fixed-row">
+                <span class="check-box">✓</span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-공통"></span>
+                    공통수학1
+                  </div>
+                  <div class="subject-meta">수학 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">4</div>
+              </div>
+
+              <div class="subject-row fixed-row">
+                <span class="check-box">✓</span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-공통"></span>
+                    공통영어1
+                  </div>
+                  <div class="subject-meta">영어 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">4</div>
+              </div>
+
+              <div class="subject-row fixed-row">
+                <span class="check-box">✓</span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-공통"></span>
+                    통합사회1
+                  </div>
+                  <div class="subject-meta">사회 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">3</div>
+              </div>
+
+              <div class="subject-row fixed-row">
+                <span class="check-box">✓</span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-공통"></span>
+                    한국사1
+                  </div>
+                  <div class="subject-meta">한국사 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">3</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 2학년 (펼침) ====== -->
+      <div class="grade-card">
+        <div class="grade-head open" onclick="this.classList.toggle('open'); document.getElementById('g2-body').style.display = this.classList.contains('open') ? 'block' : 'none';">
+          <span class="grade-num">2</span>
+          <div class="grade-title-block">
+            <div class="grade-title">2학년</div>
+            <div class="grade-sub">선택 과목 시작</div>
+          </div>
+          <div class="grade-status">
+            <span class="grade-credit num">36<span class="unit">학점</span></span>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+
+        <div id="g2-body">
+          <div class="sem-tabs">
+            <button class="sem-tab active">1학기<span class="sub">2-1</span></button>
+            <button class="sem-tab">2학기<span class="sub">2-2</span></button>
+          </div>
+
+          <div class="grade-body">
+            <div class="subject-group">
+              <div class="group-label">
+                <span class="group-tag">선택 1</span>
+                <span class="group-rule ok">✓ 학기별 2개 충족</span>
+              </div>
+
+              <div class="subject-row selected">
+                <span class="check-box">✓</span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-일반"></span>
+                    물리학
+                  </div>
+                  <div class="subject-meta">과학 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">4</div>
+              </div>
+
+              <div class="subject-row selected">
+                <span class="check-box">✓</span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-일반"></span>
+                    화학
+                  </div>
+                  <div class="subject-meta">과학 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">4</div>
+              </div>
+
+              <div class="subject-row">
+                <span class="check-box"></span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-일반"></span>
+                    생명과학
+                  </div>
+                  <div class="subject-meta">과학 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">4</div>
+              </div>
+
+              <div class="subject-row">
+                <span class="check-box"></span>
+                <div class="subject-info">
+                  <div class="subject-name">
+                    <span class="type-dot type-일반"></span>
+                    지구과학
+                  </div>
+                  <div class="subject-meta">과학 · 5단계 평가</div>
+                </div>
+                <div class="subject-credit">4</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 3학년 (접힘) ====== -->
+      <div class="grade-card">
+        <div class="grade-head" onclick="this.classList.toggle('open'); document.getElementById('g3-body').style.display = this.classList.contains('open') ? 'block' : 'none';">
+          <span class="grade-num">3</span>
+          <div class="grade-title-block">
+            <div class="grade-title">3학년</div>
+            <div class="grade-sub">진로 과목 중심</div>
+          </div>
+          <div class="grade-status">
+            <span class="grade-credit num">28<span class="unit">학점</span></span>
+            <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div id="g3-body" style="display:none;"></div>
+      </div>
+
+    </main>
+
+    <!-- ====== 하단 진행률 도크 ====== -->
+    <div class="progress-dock" onclick="toggleSheet()">
+      <div class="pd-row">
+        <div class="pd-text-block">
+          <div class="pd-label">총 이수학점</div>
+          <div class="pd-value">
+            <span class="num">192</span>
+            <span class="of">/ 192</span>
+          </div>
+        </div>
+        <span class="pd-arrow">상세 보기 ▴</span>
+      </div>
+      <div class="pd-bar"><div style="width: 100%;"></div></div>
+    </div>
+
+    <!-- ====== Bottom Sheet ====== -->
+    <div class="sheet-backdrop" id="sheet-bg" onclick="toggleSheet()"></div>
+    <div class="bottom-sheet" id="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2>이수 학점 현황</h2>
+        <button class="close-x" onclick="toggleSheet()">✕</button>
+      </div>
+
+      <div class="sheet-section">
+        <div class="progress-summary">
+          <div class="ps-label">총 이수학점</div>
+          <div class="ps-value">
+            <span class="num">192</span>
+            <span class="of">/ 192학점</span>
+          </div>
+          <div class="ps-bar"><div style="width: 100%;"></div></div>
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <h3 class="sheet-section-h">교과군별 이수 현황</h3>
+        <div class="stat-grid">
+          <div class="stat-cell ok"><span class="name">국어</span><span class="val">12<span class="of">/8</span><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">수학</span><span class="val">16<span class="of">/8</span><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">영어</span><span class="val">12<span class="of">/8</span><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">사회</span><span class="val">10<span class="of">/8</span><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">한국사</span><span class="val">6<span class="of">/6</span><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">과학</span><span class="val">24<span class="of">/8</span><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">체육</span><span class="val">10<span class="of">/8</span><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">예술</span><span class="val">8<span class="of">/6</span><span class="check">✓</span></span></div>
+          <div class="stat-cell ok" style="grid-column: 1/-1;"><span class="name">기·정·외·한·교 합산</span><span class="val">16<span class="of">/12</span><span class="check">✓</span></span></div>
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <h3 class="sheet-section-h">선택 그룹 충족</h3>
+        <div class="stat-grid">
+          <div class="stat-cell ok"><span class="name">선택 1</span><span class="val"><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">선택 2</span><span class="val"><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">선택 3</span><span class="val"><span class="check">✓</span></span></div>
+          <div class="stat-cell ok"><span class="name">선택 4</span><span class="val"><span class="check">✓</span></span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="demo-tip">시안 A 모바일 · Pretendard · 학년 아코디언 + 학기 탭 + 하단 미니바</div>
+
+<script>
+function toggleSheet() {
+  const sheet = document.getElementById('sheet');
+  const bg = document.getElementById('sheet-bg');
+  sheet.classList.toggle('show');
+  bg.classList.toggle('show');
+}
+</script>
+
+</body>
+</html>
