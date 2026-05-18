@@ -289,12 +289,12 @@
       position: fixed !important;
       bottom: 0; left: 0; right: 0; top: auto !important;
       max-height: 62px; overflow: hidden;
-      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
-      box-shadow: 0 -6px 32px rgba(15,23,42,.45), 0 -1px 0 rgba(255,255,255,.15); z-index: 90;
+      background: #ffffff;
+      box-shadow: 0 -4px 24px rgba(15,23,42,.18); z-index: 90;
       border-radius: 18px 18px 0 0;
-      border-top: 3px solid rgba(255,255,255,.35);
+      border-top: 2px solid var(--line);
       transition: max-height .32s cubic-bezier(.22,.6,.32,1), border-radius .32s;
-      flex-direction: column; gap: 0; padding: 0; color: #fff;
+      flex-direction: column; gap: 0; padding: 0; color: var(--ink);
     }
     aside.counter-panel.sheet-open {
       max-height: 78vh; overflow: hidden; border-radius: 22px 22px 0 0;
@@ -309,16 +309,16 @@
       display: flex !important; align-items: center;
       justify-content: space-between;
       padding: 0 18px; height: 62px; flex-shrink: 0;
-      cursor: pointer; color: #fff;
+      cursor: pointer; color: var(--ink);
     }
     /* 시트 열린 상태에서 mobile-dock 하단 구분선 */
     aside.counter-panel.sheet-open .mobile-dock {
-      border-bottom: 1px solid rgba(255,255,255,.2);
+      border-bottom: 1px solid var(--line);
     }
-    .md-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
-    .md-value { font-size: 20px; font-weight: 800; }
-    .md-of { font-size: 13px; font-weight: 500; }
-    .md-expand { font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .md-label { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; }
+    .md-value { font-size: 22px; font-weight: 800; color: var(--ink); }
+    .md-of { font-size: 13px; font-weight: 500; color: var(--ink-3); }
+    .md-expand { font-size: 13px; font-weight: 700; color: var(--brand); white-space: nowrap; }
     .counter-panel .progress-card { border-radius: 0; margin: 0; flex-shrink: 0; }
     .counter-panel .progress-card::after { display: none; }
     #soonjeung-row, #changche-row { padding: 0 12px; }
