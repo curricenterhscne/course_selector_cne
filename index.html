@@ -304,6 +304,12 @@
       padding: 0 18px; height: 62px; flex-shrink: 0;
       cursor: pointer; color: #fff;
     }
+    /* 시트 열린 상태에서 mobile-dock을 상단에 sticky 고정 */
+    aside.counter-panel.sheet-open .mobile-dock {
+      position: sticky; top: 0; z-index: 2;
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+      border-bottom: 1px solid rgba(255,255,255,.15);
+    }
     .md-label { font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.04em; }
     .md-value { font-size: 20px; font-weight: 800; }
     .md-of { font-size: 13px; font-weight: 400; opacity: 0.7; }
@@ -1219,6 +1225,8 @@ function toggleSheet() {
   panel.classList.toggle('sheet-open', !isOpen);
   bg.classList.toggle('show', !isOpen);
   document.body.style.overflow = isOpen ? '' : 'hidden';
+  const expand = panel.querySelector('.md-expand');
+  if (expand) expand.textContent = isOpen ? '상세 ▴' : '닫기 ▾';
 }
 
 function onCellClick(e) {
