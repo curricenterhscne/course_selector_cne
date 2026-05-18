@@ -367,3 +367,12 @@ A-2 (extract_data.py 창체 추출) 건너뛰고 A-3 (index.html 수정)부터 �
   5. 모바일 768px: `.guide-btn span { display: none }`, 버튼 34×34px로 압축
   6. placeholder에 "처음 사용하신다면 사용 설명서를 먼저 읽어 보세요 →" 링크 추가
 - 검증 결과: JS 문법 OK ✓
+
+---
+
+## [2026-05-18] G-3. 커밋 & 푸시
+
+- 커밋 해시: 7c9a458
+- 변경 파일: index.html, guide.html, docs/04_STUDENT_GUIDE.md, docs/WORK_LOG.md
+- 배포 URL: https://curricenterhscne.github.io/course_selector_cne/
+- 가이드 직접 링크: https://curricenterhscne.github.io/course_selector_cne/guide.html
