@@ -324,3 +324,13 @@ A-2 (extract_data.py 창체 추출) 건너뛰고 A-3 (index.html 수정)부터 �
   - Chrome DevTools 모바일 뷰(390×844)로 천안중앙고 선택 후 아코디언·탭·과목 선택 동작 확인
   - 하단 도크 탭 → 시트 슬라이드 업 확인
   - 데스크탑(1280px↑)에서 회귀 없음 확인
+
+---
+
+## [2026-05-18] D-6. 최종 커밋 & 푸시
+
+- 수정 파일: index.html, docs/WORK_LOG.md (+ docs/03_DESIGN_RENEWAL.md, mockup_a_*.html 추가)
+- 커밋 해시: ac55ebd
+- 커밋 메시지: feat: 디자인 리뉴얼 — 시안 A 적용 (Toss/Notion 모던 톤)
+- 배포 URL: https://curricenterhscne.github.io/course_selector_cne/
+- 검증 결과: JS 문법 OK, push 성공 ✓
