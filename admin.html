@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>편제표 데이터 관리 도구 — 충남교육청</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+:root {
+  --brand: #4f46e5; --brand-2: #6366f1; --brand-soft: #eef2ff;
+  --ink: #0f172a; --ink-2: #334155; --ink-3: #64748b; --ink-4: #94a3b8;
+  --line: #e2e8f0; --line-soft: #f1f5f9;
+  --bg: #fafafa; --panel: #ffffff;
+  --ok: #059669; --ok-soft: #d1fae5;
+  --warn: #d97706; --warn-soft: #fef3c7;
+  --danger: #dc2626; --danger-soft: #fee2e2;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow: 0 4px 16px rgba(0,0,0,.10);
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  background: var(--bg); color: var(--ink);
+  font-size: 14px; line-height: 1.6;
+  min-height: 100vh;
+}
+a { color: var(--brand); text-decoration: none; }
+
+/* ── 레이아웃 ── */
+.page-header {
+  background: var(--ink); color: #fff;
+  padding: 18px 32px; display: flex; align-items: center; gap: 12px;
+}
+.page-header .logo { font-size: 13px; opacity: .6; }
+.page-header h1 { font-size: 16px; font-weight: 700; }
+.page-header .back-link {
+  margin-left: auto; font-size: 12px; color: rgba(255,255,255,.6);
+  text-decoration: none;
+}
+.page-header .back-link:hover { color: #fff; }
+
+.container { max-width: 780px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* ── 카드 ── */
+.card {
+  background: var(--panel); border-radius: var(--radius);
+  border: 1px solid var(--line); padding: 24px;
+  box-shadow: var(--shadow-sm); margin-bottom: 20px;
+}
+.card-title {
+  font-size: 13px; font-weight: 700; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 16px;
+}
+
+/* ── 단계 안내 ── */
+.steps { display: flex; gap: 0; margin-bottom: 0; }
+.step {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  text-align: center; position: relative; padding: 0 8px;
+}
+.step + .step::before {
+  content: ''; position: absolute; left: 0; top: 22px;
+  width: 1px; height: 24px; background: var(--line);
+}
+.step-num {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--brand-soft); color: var(--brand);
+  font-size: 18px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px; flex-shrink: 0;
+}
+.step-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.step-desc { font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+
+/* ── 드롭존 ── */
+#drop-zone {
+  border: 2px dashed var(--line); border-radius: var(--radius);
+  padding: 48px 24px; text-align: center; cursor: pointer;
+  transition: all .2s; background: var(--line-soft);
+  position: relative;
+}
+#drop-zone.dragover {
+  border-color: var(--brand); background: var(--brand-soft);
+}
+#drop-zone.has-file {
+  border-style: solid; border-color: var(--ok); background: var(--ok-soft);
+}
+.drop-icon { font-size: 40px; margin-bottom: 12px; }
+.drop-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.drop-sub { font-size: 12px; color: var(--ink-3); margin-bottom: 16px; }
+.drop-btn {
+  display: inline-block; padding: 8px 20px;
+  background: var(--brand); color: #fff;
+  border-radius: 8px; font-size: 13px; font-weight: 600;
+  border: none; cursor: pointer; font-family: inherit;
+}
+.drop-btn:hover { background: var(--brand-2); }
+#file-input { display: none; }
+.file-selected { font-size: 13px; color: var(--ok); font-weight: 600; }
+
+/* ── 진행 상태 ── */
+#status-area { display: none; }
+.spinner-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px; background: var(--brand-soft);
+  border-radius: 8px; color: var(--brand); font-weight: 600;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 18px; height: 18px; border: 2.5px solid var(--brand-soft);
+  border-top-color: var(--brand); border-radius: 50%;
+  animation: spin .7s linear infinite; flex-shrink: 0;
+}
+
+/* ── 결과 ── */
+#result-area { display: none; }
+.year-section { margin-bottom: 24px; }
+.year-section:last-child { margin-bottom: 0; }
+.year-heading {
+  font-size: 15px; font-weight: 800; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 700;
+}
+.badge-new { background: var(--brand-soft); color: var(--brand); }
+.badge-changed { background: var(--warn-soft); color: var(--warn); }
+.badge-ok { background: var(--ok-soft); color: var(--ok); }
+.badge-danger { background: var(--danger-soft); color: var(--danger); }
+
+.summary-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin-bottom: 16px;
+}
+.summary-cell {
+  background: var(--line-soft); border-radius: 8px;
+  padding: 12px; text-align: center;
+}
+.summary-cell .num {
+  font-size: 24px; font-weight: 800; display: block; margin-bottom: 2px;
+}
+.summary-cell .lbl { font-size: 11px; color: var(--ink-3); }
+.summary-cell.has-change .num { color: var(--warn); }
+.summary-cell.has-new .num { color: var(--brand); }
+.summary-cell.has-ok .num { color: var(--ok); }
+.summary-cell.has-danger .num { color: var(--danger); }
+
+.school-list { display: flex; flex-direction: column; gap: 6px; }
+.school-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 8px;
+  font-size: 13px;
+}
+.school-item.new { background: var(--brand-soft); }
+.school-item.changed { background: var(--warn-soft); }
+.school-item.removed { background: var(--danger-soft); }
+.school-item.warn { background: var(--warn-soft); border-left: 3px solid var(--warn); }
+.school-code { font-size: 11px; color: var(--ink-3); font-family: monospace; }
+.school-name { font-weight: 600; flex: 1; }
+.school-detail { font-size: 11px; color: var(--ink-3); }
+
+.section-label {
+  font-size: 11px; font-weight: 700; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin: 14px 0 8px;
+}
+
+/* ── 다운로드 ── */
+#download-area { display: none; }
+.download-card {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  border-radius: var(--radius); padding: 28px;
+  color: #fff; text-align: center;
+  box-shadow: var(--shadow);
+}
+.download-card h2 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+.download-card p { font-size: 13px; opacity: .85; margin-bottom: 24px; }
+#download-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 32px; background: #fff; color: var(--brand);
+  border-radius: 99px; font-size: 14px; font-weight: 800;
+  border: none; cursor: pointer; font-family: inherit;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15); transition: all .15s;
+}
+#download-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+#download-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.download-detail { font-size: 11px; opacity: .7; margin-top: 10px; }
+
+/* ── 다음 단계 ── */
+#next-area { display: none; }
+.next-steps { display: flex; flex-direction: column; gap: 12px; }
+.next-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px; background: var(--line-soft);
+  border-radius: 10px;
+}
+.next-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--brand); color: #fff;
+  font-size: 12px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.next-text { font-size: 13px; line-height: 1.6; }
+.next-text strong { font-weight: 700; }
+.next-text code {
+  background: var(--line); padding: 1px 6px; border-radius: 4px;
+  font-family: 'Courier New', monospace; font-size: 12px;
+}
+.caution-box {
+  background: var(--warn-soft); border-left: 3px solid var(--warn);
+  padding: 12px 16px; border-radius: 0 8px 8px 0;
+  font-size: 12px; color: var(--warn); margin-top: 12px; line-height: 1.6;
+}
+
+/* ── 에러 ── */
+.error-box {
+  background: var(--danger-soft); border: 1px solid var(--danger);
+  border-radius: 8px; padding: 14px 16px; font-size: 13px;
+  color: var(--danger); margin-top: 12px;
+}
+.error-box strong { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo">충남교육청</div>
+  <h1>편제표 데이터 관리 도구</h1>
+  <a href="index.html" class="back-link">← 실습 사이트로</a>
+</div>
+
+<div class="container">
+
+  <!-- 단계 안내 -->
+  <div class="card">
+    <div class="card-title">사용 방법 — 3단계</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">파일 올리기</div>
+        <div class="step-desc">편제표 엑셀 파일을<br>아래에 끌어다 놓으세요</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">변경 확인</div>
+        <div class="step-desc">추가·변경·삭제된<br>학교 목록을 확인하세요</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">ZIP 다운로드</div>
+        <div class="step-desc">파일을 받아서<br>안내에 따라 반영하세요</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 드롭존 -->
+  <div class="card" style="padding:0; overflow:hidden;">
+    <div id="drop-zone">
+      <div class="drop-icon">📂</div>
+      <div class="drop-title">엑셀 파일을 여기에 끌어다 놓으세요</div>
+      <div class="drop-sub">
+        2025 또는 2026학년도 편제표 파일 (xlsx)<br>
+        두 파일을 동시에 올리면 함께 처리됩니다
+      </div>
+      <button class="drop-btn" onclick="document.getElementById('file-input').click()">
+        파일 직접 선택
+      </button>
+      <input type="file" id="file-input" accept=".xlsx" multiple>
+      <div id="selected-files" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- 진행 상태 -->
+  <div id="status-area">
+    <div class="card">
+      <div id="status-msg" class="spinner-row">
+        <div class="spinner"></div>
+        <span>파일 분석 중...</span>
+      </div>
+      <div id="error-container"></div>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="result-area">
+    <div class="card">
+      <div class="card-title">분석 결과</div>
+      <div id="result-content"></div>
+    </div>
+  </div>
+
+  <!-- 다운로드 -->
+  <div id="download-area">
+    <div class="download-card">
+      <h2>📦 데이터 준비 완료</h2>
+      <p id="zip-desc">변경된 JSON 파일들을 ZIP으로 다운로드합니다</p>
+      <button id="download-btn" onclick="downloadZip()">ZIP 다운로드</button>
+      <div class="download-detail" id="zip-detail"></div>
+    </div>
+  </div>
+
+  <!-- 다음 단계 -->
+  <div id="next-area">
+    <div class="card">
+      <div class="card-title">다음 단계 — 사이트에 반영하기</div>
+      <div class="next-steps">
+        <div class="next-step">
+          <div class="next-num">1</div>
+          <div class="next-text">
+            <strong>다운로드된 ZIP 파일</strong>을 찾아서 압축을 해제합니다.<br>
+            안에 <code>data</code> 폴더가 있습니다.
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="next-num">2</div>
+          <div class="next-text">
+            압축 해제된 <code>data</code> 폴더 안의 파일들을<br>
+            사이트 프로젝트의 <strong><code>data</code> 폴더에 덮어쓰기</strong>합니다.<br>
+            <span style="font-size:12px;color:var(--ink-3);">기존 파일을 지우지 않아도 됩니다. 같은 이름이면 자동으로 교체됩니다.</span>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="next-num">3</div>
+          <div class="next-text">
+            <strong>GitHub Desktop</strong>을 열면 변경된 파일 목록이 보입니다.<br>
+            아래쪽 입력칸에 변경 내용을 간단히 적고 <strong>Commit</strong> 버튼을 누릅니다.<br>
+            <span style="font-size:12px;color:var(--ink-3);">예시: "2026학년도 편제표 3개교 수정"</span>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="next-num">4</div>
+          <div class="next-text">
+            <strong>Push origin</strong> 버튼을 눌러 GitHub에 올립니다.<br>
+            1~2분 후 사이트에 자동으로 반영됩니다.
+          </div>
+        </div>
+      </div>
+      <div class="caution-box" id="new-year-caution" style="display:none;">
+        ⚠ <strong>신규 학년도가 추가되었습니다.</strong><br>
+        index.html 파일을 열어 학년도 버튼이 추가되었는지 확인하세요.
+        추가되지 않았다면 GitHub Desktop에서 index.html을 클릭해 변경 내용을 확인하세요.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+'use strict';
+
+// ── CDN ──────────────────────────────────────────────────────────────────────
+const CDN_XLSX  = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+const CDN_JSZIP = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+
+async function loadLib(globalName, url) {
+  if (window[globalName]) return;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = url; s.onload = res;
+    s.onerror = () => rej(new Error(`라이브러리 로드 실패: ${url}`));
+    document.head.appendChild(s);
+  });
+}
+
+// ── 알려진 연도 ────────────────────────────────────────────────────────────
+const KNOWN_YEARS = ['2025', '2026'];
+
+// ── 상태 ──────────────────────────────────────────────────────────────────
+let zipData = null;        // {filename: content} — JSZip에 넣을 파일들
+let hasNewYear = false;
+let processedYears = [];
+
+// ── 드롭존 ────────────────────────────────────────────────────────────────
+const dropZone  = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  handleFiles([...e.dataTransfer.files]);
+});
+fileInput.addEventListener('change', () => handleFiles([...fileInput.files]));
+
+function handleFiles(files) {
+  const xlsxFiles = files.filter(f => f.name.endsWith('.xlsx'));
+  if (!xlsxFiles.length) {
+    showError('xlsx 파일을 선택해 주세요.');
+    return;
+  }
+  // 파일명 표시
+  document.getElementById('selected-files').innerHTML =
+    xlsxFiles.map(f => `<div class="file-selected">✓ ${f.name}</div>`).join('');
+  dropZone.classList.add('has-file');
+  runProcess(xlsxFiles);
+}
+
+// ── 연도 감지 ──────────────────────────────────────────────────────────────
+function detectYear(filename) {
+  const m = filename.match(/(\d{4})학년도/);
+  return m ? m[1] : null;
+}
+
+// ── 메인 처리 ──────────────────────────────────────────────────────────────
+async function runProcess(files) {
+  setStatus('파일 분석 중...');
+  show('status-area');
+  hide('result-area'); hide('download-area'); hide('next-area');
+  clearErrors();
+  zipData = {};
+  hasNewYear = false;
+  processedYears = [];
+
+  try {
+    await loadLib('XLSX', CDN_XLSX);
+    setStatus('서버 연결 확인 중...');
+    const onServer = await checkServer();
+
+    // 기존 schools.json 로드 (departments 보존용)
+    let existingSchools = null;
+    if (onServer) {
+      try {
+        existingSchools = await fetchJson('data/schools.json');
+      } catch(e) {}
+    }
+
+    const allYearResults = {};
+
+    for (const file of files) {
+      const year = detectYear(file.name);
+      if (!year) { showError(`파일명에서 학년도를 찾지 못했습니다: ${file.name}`); continue; }
+
+      setStatus(`${year}학년도 처리 중...`);
+      const result = await processOneFile(file, year, onServer);
+      allYearResults[year] = result;
+      processedYears.push(year);
+      if (!KNOWN_YEARS.includes(year)) hasNewYear = true;
+    }
+
+    if (!processedYears.length) throw new Error('처리된 파일이 없습니다.');
+
+    // schools.json 빌드 (모든 연도 departments 포함)
+    const latestYear = processedYears.sort().at(-1);
+    buildSchoolsJson(allYearResults, existingSchools, latestYear);
+
+    // courseDB.json — 최신 연도 기준
+    if (allYearResults[latestYear]?.courseList) {
+      const courses = allYearResults[latestYear].courseList;
+      zipData['data/courseDB.json'] = JSON.stringify(courses, null, 2);
+    }
+
+    renderResults(allYearResults);
+    buildDownloadUI(allYearResults);
+    setStatus(null);
+  } catch(e) {
+    setStatus(null);
+    showError(e.message);
+    console.error(e);
+  }
+}
+
+async function processOneFile(file, year, onServer) {
+  const buffer = await file.arrayBuffer();
+  const wb = XLSX.read(buffer, { type: 'array' });
+
+  // ── Schools 시트 ──
+  const schoolsWs = wb.Sheets['Schools'];
+  const schoolRows = XLSX.utils.sheet_to_json(schoolsWs) || [];
+  // 개인정보 제외
+  const schoolMap = {}; // code -> {학교명, 지역, 학급수}
+  const cleanSchools = schoolRows
+    .filter(r => r['학교코드'] && r['학교명'])
+    .map(r => {
+      const s = {
+        학교코드: String(r['학교코드']).trim(),
+        학교명: r['학교명'],
+        '1학년학급수': r['1학년학급수'] ?? null,
+        '2학년학급수': r['2학년학급수'] ?? null,
+        '3학년학급수': r['3학년학급수'] ?? null,
+        지역: r['지역'] ?? '',
+      };
+      schoolMap[s.학교코드] = s;
+      return s;
+    });
+
+  // ── CourseDB 시트 ──
+  const courseWs = wb.Sheets['CourseDB'];
+  const courseList = courseWs
+    ? XLSX.utils.sheet_to_json(courseWs).filter(r => r['과목명'])
+    : [];
+
+  // ── Data 시트 파싱 ──
+  const dataWs = wb.Sheets['Data'];
+  const dataRows = XLSX.utils.sheet_to_json(dataWs, { header: 1 });
+  const newData = {}; // code -> parsed json
+  const parseErrors = [];
+
+  for (let i = 1; i < dataRows.length; i++) {
+    const row = dataRows[i];
+    const code = row[0] ? String(row[0]).trim() : '';
+    const jsonStr = row[1] ? String(row[1]).trim() : '';
+    if (!code || !jsonStr) continue;
+    try {
+      newData[code] = JSON.parse(jsonStr);
+    } catch(e) {
+      parseErrors.push({ code, error: e.message });
+    }
+  }
+
+  // ── 기존 JSON 비교 ──
+  let existing = {};
+  if (onServer) {
+    const yearDir = `data/curriculum_${year}`;
+    for (const code of Object.keys(newData)) {
+      try {
+        existing[code] = await fetchJson(`${yearDir}/${code}.json`);
+      } catch(e) {}
+    }
+  }
+
+  // ── diff ──
+  const existingCodes = new Set(Object.keys(existing));
+  const newCodes = new Set(Object.keys(newData));
+
+  const added   = [...newCodes].filter(c => !existingCodes.has(c)).sort();
+  const removed = [...existingCodes].filter(c => !newCodes.has(c)).sort();
+  const changed = [];
+  let unchanged = 0;
+
+  for (const code of newCodes) {
+    if (!existingCodes.has(code)) continue;
+    const isSame = JSON.stringify(newData[code], null, 0) ===
+                   JSON.stringify(existing[code], null, 0);
+    if (isSame) unchanged++;
+    else changed.push({ code, summary: diffSummary(existing[code], newData[code]) });
+  }
+
+  // ── 검증 ──
+  const qualityIssues = [];
+  for (const [code, data] of Object.entries(newData)) {
+    const issues = validateData(code, data);
+    for (const issue of issues) qualityIssues.push({ code, issue });
+  }
+
+  // ── ZIP 파일 구성 ──
+  const yearDir = `data/curriculum_${year}`;
+  for (const code of [...added, ...changed.map(c => c.code)]) {
+    zipData[`${yearDir}/${code}.json`] =
+      JSON.stringify(newData[code], null, 0);
+  }
+  // 동일하더라도 전체 포함 (덮어쓰기 방식으로 안전하게)
+  for (const [code, data] of Object.entries(newData)) {
+    zipData[`${yearDir}/${code}.json`] = JSON.stringify(data, null, 0);
+  }
+
+  // 인덱스 파일
+  const index = {};
+  for (const [code] of Object.entries(newData)) {
+    index[code] = { size: zipData[`${yearDir}/${code}.json`].length };
+  }
+  zipData[`data/curriculum_${year}_index.json`] =
+    JSON.stringify(index, null, 2);
+
+  return { year, added, changed, removed, unchanged,
+           parseErrors, qualityIssues, newData, cleanSchools, courseList,
+           onServer };
+}
+
+// ── schools.json 빌드 ──────────────────────────────────────────────────────
+function buildSchoolsJson(allResults, existingSchools, latestYear) {
+  const latestResult = allResults[latestYear];
+  if (!latestResult) return;
+
+  const schoolsList = latestResult.cleanSchools;
+  const deptPattern = /^(N\d+)\(([^)]+)\)$/;
+
+  for (const year of [...processedYears, ...KNOWN_YEARS]) {
+    const deptsByBase = {};
+    // 처리된 연도면 newData에서 추출
+    if (allResults[year]) {
+      for (const code of Object.keys(allResults[year].newData)) {
+        const m = deptPattern.exec(code);
+        if (m) {
+          const base = m[1], dept = m[2];
+          (deptsByBase[base] = deptsByBase[base] || []).push({ dept, code });
+        }
+      }
+    } else if (existingSchools) {
+      // 처리 안 된 연도는 기존 schools.json에서 보존
+      for (const s of existingSchools) {
+        const depts = s[`departments_${year}`];
+        if (depts && s['학교코드']) deptsByBase[s['학교코드']] = depts;
+      }
+    }
+    for (const s of schoolsList) {
+      const depts = deptsByBase[s['학교코드']] || [];
+      s[`departments_${year}`] = depts.length
+        ? depts.sort((a, b) => a.dept.localeCompare(b.dept))
+        : null;
+    }
+  }
+
+  zipData['data/schools.json'] = JSON.stringify(schoolsList, null, 2);
+}
+
+// ── 결과 렌더링 ────────────────────────────────────────────────────────────
+function renderResults(allResults) {
+  const container = document.getElementById('result-content');
+  container.innerHTML = '';
+
+  for (const year of processedYears.sort()) {
+    const r = allResults[year];
+    const isNew = !KNOWN_YEARS.includes(year);
+
+    const section = document.createElement('div');
+    section.className = 'year-section';
+
+    const totalChanges = r.added.length + r.changed.length;
+
+    section.innerHTML = `
+      <div class="year-heading">
+        ${year}학년도
+        ${isNew ? '<span class="badge badge-new">신규 연도</span>' : ''}
+        ${totalChanges > 0 ? `<span class="badge badge-changed">${totalChanges}개 변경</span>` : '<span class="badge badge-ok">변경 없음</span>'}
+      </div>
+      <div class="summary-grid">
+        <div class="summary-cell ${r.added.length ? 'has-new' : ''}">
+          <span class="num">${r.added.length}</span>
+          <span class="lbl">신규 학교</span>
+        </div>
+        <div class="summary-cell ${r.changed.length ? 'has-change' : ''}">
+          <span class="num">${r.changed.length}</span>
+          <span class="lbl">변경된 학교</span>
+        </div>
+        <div class="summary-cell ${r.removed.length ? 'has-danger' : ''}">
+          <span class="num">${r.removed.length}</span>
+          <span class="lbl">삭제된 학교</span>
+        </div>
+        <div class="summary-cell has-ok">
+          <span class="num">${r.unchanged}</span>
+          <span class="lbl">변경 없음</span>
+        </div>
+      </div>
+      <div id="list-${year}"></div>
+    `;
+    container.appendChild(section);
+
+    const listEl = document.getElementById(`list-${year}`);
+
+    if (r.parseErrors.length) {
+      appendLabel(listEl, '파싱 오류');
+      for (const e of r.parseErrors) {
+        appendItem(listEl, 'removed', '✗', e.code, '', e.error);
+      }
+    }
+
+    if (r.added.length) {
+      appendLabel(listEl, '신규 학교');
+      for (const code of r.added) {
+        appendItem(listEl, 'new', '+', code, getSchoolName(r, code), '신규');
+      }
+    }
+
+    if (r.changed.length) {
+      appendLabel(listEl, '변경된 학교');
+      for (const { code, summary } of r.changed) {
+        appendItem(listEl, 'changed', '~', code, getSchoolName(r, code), summary);
+      }
+    }
+
+    if (r.removed.length) {
+      appendLabel(listEl, 'xlsx에서 사라진 학교 (JSON 파일은 유지됨)');
+      for (const code of r.removed) {
+        appendItem(listEl, 'removed', '-', code, '', '확인 필요');
+      }
+    }
+
+    if (r.qualityIssues.length) {
+      appendLabel(listEl, `데이터 품질 경고 (${r.qualityIssues.length}건)`);
+      for (const { code, issue } of r.qualityIssues) {
+        appendItem(listEl, 'warn', '!', code, getSchoolName(r, code), issue);
+      }
+    }
+
+    if (!r.onServer) {
+      const note = document.createElement('div');
+      note.style.cssText = 'font-size:11px;color:var(--ink-3);margin-top:8px;';
+      note.textContent = '* 로컬 서버 없이 실행 중 — 기존 파일과 비교 생략, 전체 변환 모드';
+      listEl.appendChild(note);
+    }
+  }
+
+  show('result-area');
+}
+
+function getSchoolName(r, code) {
+  // code에서 base code 추출 (학과 suffix 있을 수 있음)
+  const base = code.replace(/\([^)]+\)$/, '');
+  const s = r.cleanSchools.find(s => s['학교코드'] === base);
+  if (!s) return '';
+  const dept = code.match(/\(([^)]+)\)$/)?.[1];
+  return dept ? `${s['학교명']} (${dept})` : s['학교명'];
+}
+
+function appendLabel(el, text) {
+  const d = document.createElement('div');
+  d.className = 'section-label';
+  d.textContent = text;
+  el.appendChild(d);
+}
+
+function appendItem(el, cls, icon, code, name, detail) {
+  const d = document.createElement('div');
+  d.className = `school-item ${cls}`;
+  d.innerHTML = `
+    <span>${icon}</span>
+    ${name ? `<span class="school-name">${name}</span>` : ''}
+    <span class="school-code">${code}</span>
+    <span class="school-detail">${detail}</span>
+  `;
+  el.appendChild(d);
+}
+
+// ── 다운로드 UI ─────────────────────────────────────────────────────────────
+function buildDownloadUI(allResults) {
+  const totalFiles = Object.keys(zipData).length;
+  const totalChanges = processedYears.reduce((sum, y) => {
+    const r = allResults[y];
+    return sum + r.added.length + r.changed.length;
+  }, 0);
+
+  document.getElementById('zip-desc').textContent =
+    `${processedYears.join('·')}학년도 데이터 — 총 ${totalFiles}개 파일`;
+  document.getElementById('zip-detail').textContent =
+    totalChanges ? `${totalChanges}개 학교 변경 포함` : '변경 없음 (전체 재생성)';
+
+  show('download-area');
+  show('next-area');
+
+  if (hasNewYear) {
+    show('new-year-caution');
+  }
+}
+
+// ── ZIP 다운로드 ────────────────────────────────────────────────────────────
+async function downloadZip() {
+  const btn = document.getElementById('download-btn');
+  btn.disabled = true;
+  btn.textContent = '압축 중...';
+  try {
+    await loadLib('JSZip', CDN_JSZIP);
+    const zip = new JSZip();
+    for (const [path, content] of Object.entries(zipData)) {
+      zip.file(path, content);
+    }
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    a.href = url;
+    a.download = `편제표데이터_${processedYears.join('_')}_${date}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
+    btn.textContent = '✓ 다운로드 완료';
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'ZIP 다운로드';
+    showError('ZIP 생성 실패: ' + e.message);
+  }
+}
+
+// ── 유틸 ─────────────────────────────────────────────────────────────────────
+async function checkServer() {
+  try {
+    const res = await fetch('data/schools.json', { method: 'HEAD' });
+    return res.ok;
+  } catch(e) { return false; }
+}
+
+async function fetchJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`fetch 실패: ${url}`);
+  return res.json();
+}
+
+function diffSummary(oldD, newD) {
+  const og = (oldD?.groups || []).length;
+  const ng = (newD?.groups || []).length;
+  if (og !== ng) return `그룹 ${og}→${ng}개`;
+  const os = (oldD?.groups || []).reduce((s, g) => s + (g.subjects||[]).length, 0);
+  const ns = (newD?.groups || []).reduce((s, g) => s + (g.subjects||[]).length, 0);
+  if (os !== ns) return `과목 수 ${os}→${ns}개`;
+  return '내용 변경';
+}
+
+function validateData(code, data) {
+  const issues = [];
+  for (const [gi, g] of (data.groups || []).entries()) {
+    for (const [si, s] of (g.subjects || []).entries()) {
+      if (!s.name) issues.push(`선택${gi} 과목[${si}] 이름 공백`);
+    }
+  }
+  return issues;
+}
+
+function setStatus(msg) {
+  const area = document.getElementById('status-area');
+  const el = document.getElementById('status-msg');
+  if (!msg) { hide('status-area'); return; }
+  show('status-area');
+  el.innerHTML = `<div class="spinner"></div><span>${msg}</span>`;
+}
+
+function showError(msg) {
+  const c = document.getElementById('error-container');
+  c.innerHTML += `<div class="error-box"><strong>오류:</strong> ${msg}</div>`;
+  show('status-area');
+}
+
+function clearErrors() {
+  document.getElementById('error-container').innerHTML = '';
+}
+
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+</body>
+</html>
