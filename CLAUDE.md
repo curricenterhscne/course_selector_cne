@@ -80,6 +80,39 @@ python3 -m http.server 8080
 3. **`main` 브랜치 root에서 서빙** 설정. `docs/` 폴더로 빼지 않음.
 4. **CDN 캐싱**: 정적 JSON이라 push 후 즉시 반영 안 될 수 있음. 강력 새로고침(Cmd+Shift+R).
 
+## 데이터 갱신 방법
+
+### 편제표 수정 / 학교 추가
+
+```bash
+# 1. uploads/ 에 새 xlsx 파일 놓기 (파일명 형식 유지)
+# 2. 변경사항 미리보기
+python3 update_data.py --dry-run
+
+# 3. 특정 연도만 갱신
+python3 update_data.py --year 2026
+
+# 4. 전체 갱신
+python3 update_data.py
+
+# 5. git add data/ && git commit && git push
+```
+
+### 신규 학년도 추가 (예: 2027학년도)
+
+```bash
+# 1. uploads/ 에 2027학년도 xlsx 추가
+# 2. update_data.py 상단 KNOWN_YEARS 에 '2027' 추가
+# 3. 실행 (index.html year-pill 자동 패치 포함)
+python3 update_data.py --year 2027
+# 4. index.html에서 기본 연도(state.year, URL 기본값) 수동 확인
+# 5. git add data/ index.html && git commit && git push
+```
+
+### xlsx 주의사항
+- `uploads/` 폴더는 .gitignore — Schools 시트에 담당자연락처·비밀번호 포함
+- 파일명 형식: `{YYYY}학년도 고등학교 입학생 3개년 교육과정 편제표(입력용).xlsx`
+
 ## 향후 개선 후보 (작업 우선순위 아님)
 
 - 공동교육과정·충남온라인학교 개설 과목 연계 배지
