@@ -376,3 +376,15 @@ A-2 (extract_data.py 창체 추출) 건너뛰고 A-3 (index.html 수정)부터 �
 - 변경 파일: index.html, guide.html, docs/04_STUDENT_GUIDE.md, docs/WORK_LOG.md
 - 배포 URL: https://curricenterhscne.github.io/course_selector_cne/
 - 가이드 직접 링크: https://curricenterhscne.github.io/course_selector_cne/guide.html
+
+---
+
+## [2026-05-20] 데이터 검증 및 온양여고 2026 과목명 수정
+
+- 수정 파일: data/curriculum_2026/N100000214.json
+- 핵심 변경:
+  - xlsx 원본 ↔ JSON 파일 전체 187개 비교 검증 (2025: 93개, 2026: 94개) → 모두 일치
+  - 온양여고(N100000214) 2026년 `선택 6` groups[6].subjects[0] 과목명이 xlsx 원본부터 공백으로 입력됨
+  - 선택 5의 동일 위치 과목 "주제 탐구 독서" 메타데이터(group, type, rank, area, achievement 등) 전체 복사하여 수정
+- 검증 결과: name='주제 탐구 독서', group='국어', opCredit=3 정상 확인
+- 사용자 확인 필요 사항: 커밋·푸시 승인
