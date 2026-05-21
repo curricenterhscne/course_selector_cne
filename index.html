@@ -93,7 +93,10 @@
     border-top: 1px solid rgba(255,255,255,0.18);
     padding: 0;
   }
-  .h-subnav__inner { max-width: 1600px; margin-inline: auto; padding: 8px 28px 2px; }
+  .h-subnav__inner { max-width: 1600px; margin-inline: auto; padding: 4px 28px 2px; }
+  .h-site-link { padding: 4px 0 6px; border-bottom: 1px solid var(--color-border); margin-bottom: 6px; }
+  .h-site-link a { font-size: 12px; font-weight: 600; color: var(--color-text-brand); text-decoration: none; }
+  .h-site-link a:hover { text-decoration: underline; }
   /* 진블루 헤더 위 아이콘·가이드 버튼을 흰 톤으로 오버라이드 */
   .kk-header .icon-btn {
     background: rgba(255,255,255,0.12);
@@ -288,7 +291,6 @@
     .h-subnav__inner { padding: 6px 14px 2px; }
     .h-toolbar { gap: 8px; }
     .kk-header__subtitle { display: none; }
-    .kk-header__nav .kk-btn--sm { display: none; }
     .search-wrap { max-width: 100%; flex: 1 1 100%; order: 3; }
     .reco-row {
       flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
@@ -547,7 +549,6 @@
       </div>
     </div>
     <div class="kk-header__nav">
-      <a href="https://curricenterhscne.github.io/2022-curriculum-majors/" target="_self" class="kk-btn kk-btn--secondary kk-btn--sm">대학 학과와 권장 과목 안내</a>
       <a href="guide.html" class="guide-btn kk-btn kk-btn--secondary" id="guide-link" title="사용 설명서">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <span>사용 설명서</span>
@@ -574,6 +575,9 @@
 
   <div class="h-subnav">
   <div class="h-subnav__inner">
+  <div class="h-site-link">
+    <a href="https://curricenterhscne.github.io/2022-curriculum-majors/" target="_self">대학 학과와 권장 과목 안내 →</a>
+  </div>
   <div class="h-toolbar">
     <div class="year-pills">
       <button class="year-pill" data-year="2025">2025</button>
@@ -770,7 +774,7 @@ function deserializeUrl() {
   const parseCsv = key => p.get(key) ? p.get(key).split(',').map(s => s.trim()).filter(Boolean) : [];
   const out = { year: p.get('y') || '2026', schoolBase: p.get('s'), dept: p.get('d'), picks: [],
                 pendingSubjects: [...parseCsv('want'), ...parseCsv('core')],
-                pendingMajorId: p.get('majorId') || '' };
+                pendingMajorId: decodeURIComponent(p.get('majorId') || '') };
   if (p.get('p')) {
     out.picks = p.get('p').split(',').map(s => {
       const m = s.match(/^g(\d+)s(\d+)i(\d+)$/);
