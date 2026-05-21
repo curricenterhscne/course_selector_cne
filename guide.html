@@ -5,44 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>사용 설명서 — 충남 고교 과목 선택 실습</title>
 <meta name="description" content="고교학점제 과목 선택 실습 사이트의 사용 방법을 안내합니다.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<!-- 꾸꾸클럽 디자인 시스템 v1.0 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/tokens/design-tokens.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/components/components.css">
 <style>
   :root {
-    --bg: #fafafa;
-    --bg-2: #f1f5f9;
-    --panel: #ffffff;
-    --ink: #0f172a;
-    --ink-2: #334155;
-    --ink-3: #64748b;
-    --ink-4: #94a3b8;
-    --line: #e2e8f0;
-    --line-soft: #f1f5f9;
+    /* ── 꾸꾸클럽 디자인 시스템 브리지 레이어 ──────────────────────────────
+       --shadow-sm / --shadow-lg 는 동일 이름으로 자동 상속.
+       ─────────────────────────────────────────────────────────────────── */
 
-    --brand: #4f46e5;
-    --brand-2: #6366f1;
-    --brand-3: #818cf8;
-    --brand-soft: #eef2ff;
-    --brand-softer: #f5f3ff;
+    /* 표면 */
+    --bg:           var(--color-bg);
+    --bg-2:         var(--color-bg-subtle);
+    --panel:        var(--color-surface);
 
-    --ok: #059669;
-    --ok-soft: #d1fae5;
-    --warn: #d97706;
-    --warn-soft: #fef3c7;
-    --danger: #dc2626;
-    --danger-soft: #fee2e2;
+    /* 텍스트 */
+    --ink:          var(--color-text);
+    --ink-2:        var(--color-text-muted);
+    --ink-3:        var(--color-text-muted);
+    --ink-4:        var(--color-text-subtle);
 
-    --r-sm: 6px;
-    --r: 10px;
-    --r-lg: 14px;
-    --r-xl: 20px;
+    /* 경계선 */
+    --line:         var(--color-border);
+    --line-soft:    var(--color-border-subtle);
 
-    --shadow-sm: 0 1px 2px rgba(15,23,42,.04);
-    --shadow: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
-    --shadow-lg: 0 10px 30px -10px rgba(15,23,42,.12);
-    --shadow-brand: 0 8px 24px -8px rgba(79,70,229,.4);
+    /* 브랜드 — 진블루 (#4F6EBE) */
+    --brand:        var(--color-brand);
+    --brand-2:      var(--kkuk-blue-600);
+    --brand-3:      var(--kkuk-blue-400);
+    --brand-soft:   var(--kkuk-blue-50);
+    --brand-softer: var(--kkuk-sky-50);
+
+    /* 상태 색 */
+    --ok:           var(--kkuk-success);
+    --ok-soft:      var(--kkuk-green-50);
+    --warn:         var(--kkuk-warning);
+    --warn-soft:    var(--kkuk-cream-100);
+    --danger:       var(--kkuk-danger);
+    --danger-soft:  #fee2e2;
+
+    /* 반경 */
+    --r-sm:         var(--radius-sm);
+    --r:            var(--radius-md);
+    --r-lg:         var(--radius-lg);
+    --r-xl:         var(--radius-xl);
+
+    /* 그림자 */
+    --shadow:       var(--shadow-md);
+    --shadow-brand: 0 8px 24px -8px rgba(79,110,190,.40);
   }
+  body { font-size: 15px; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
   body {
@@ -56,44 +69,15 @@
   a { color: var(--brand); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  /* ====== 상단 네비게이션 ====== */
-  .topnav {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
-    padding: 14px 24px;
-    position: sticky; top: 0; z-index: 50;
-    display: flex; align-items: center; gap: 14px;
-  }
-  .nav-logo {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 15px; font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-  }
-  .nav-logo:hover { text-decoration: none; }
-  .nav-badge {
-    background: var(--brand);
-    color: #fff;
-    font-size: 10.5px;
-    padding: 3px 8px;
-    border-radius: 99px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-  }
-  .nav-divider { width: 1px; height: 16px; background: var(--line); }
-  .nav-current {
-    font-size: 13px;
-    color: var(--ink-3);
-    font-weight: 600;
-  }
+  /* ====== 상단 네비게이션 — .kk-header ====== */
+  /* 배경·sticky·shadow 는 components.css .kk-header 가 처리 */
+  /* 뒤로가기 버튼 — 진블루 배경 위 화이트 톤 */
   .nav-back {
     margin-left: auto;
     padding: 7px 14px;
-    border: 1px solid var(--line);
-    background: var(--panel);
-    color: var(--ink-2);
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.15);
+    color: #fff;
     border-radius: var(--r);
     font-size: 13px;
     font-weight: 600;
@@ -102,8 +86,9 @@
     transition: all .15s;
   }
   .nav-back:hover {
-    border-color: var(--brand);
-    color: var(--brand);
+    background: rgba(255,255,255,0.28);
+    border-color: rgba(255,255,255,0.55);
+    color: #fff;
     text-decoration: none;
   }
 
@@ -507,23 +492,17 @@
     font-size: 14.5px;
     color: var(--ink-2);
   }
+  /* .cta-btn → kk-btn kk-btn--primary kk-btn--lg 추가됨. 차이만 오버라이드. */
   .cta-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--brand);
-    color: #fff;
-    padding: 12px 24px;
     border-radius: var(--r);
-    font-size: 14.5px;
-    font-weight: 700;
-    text-decoration: none;
+    font-size: 14.5px; font-weight: 700;
     letter-spacing: -0.01em;
     box-shadow: var(--shadow-brand);
-    transition: all .15s;
   }
   .cta-btn:hover {
     text-decoration: none;
     transform: translateY(-1px);
-    box-shadow: 0 12px 28px -8px rgba(79,70,229,.5);
+    box-shadow: 0 12px 28px -8px rgba(79,110,190,.5);
   }
 
   /* 푸터 */
@@ -538,8 +517,6 @@
 
   /* ====== 모바일 반응형 ====== */
   @media (max-width: 640px) {
-    .topnav { padding: 12px 16px; gap: 10px; }
-    .nav-current { display: none; }
     .nav-back { padding: 6px 11px; font-size: 12.5px; }
     .wrap { padding: 20px 16px 60px; }
     .hero { padding: 24px 20px; }
@@ -565,7 +542,7 @@
   /* 인쇄용 */
   @media print {
     body { background: #fff; }
-    .topnav, .final-cta, .nav-back { display: none; }
+    header, .final-cta, .nav-back { display: none; }
     .wrap { max-width: 100%; padding: 0; }
     .faq-item .faq-a { display: block !important; }
     .faq-q-chevron { display: none; }
@@ -579,18 +556,25 @@
 </head>
 <body>
 
-<nav class="topnav">
-  <a href="./" class="nav-logo">
-    <span class="nav-badge">고교학점제</span>
-    <span>과목 선택 실습</span>
-  </a>
-  <div class="nav-divider"></div>
-  <span class="nav-current">사용 설명서</span>
-  <a href="./" class="nav-back">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-    실습으로 돌아가기
-  </a>
-</nav>
+<header class="kk-header">
+  <div class="kk-header__inner">
+    <a href="./" class="kk-header__brand">
+      <div class="kk-header__mascot">
+        <img src="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/assets/characters/paenkkumi.svg" alt="팬꾸미" width="32" height="32">
+      </div>
+      <div>
+        <div class="kk-header__title">과목 선택 실습</div>
+        <div class="kk-header__subtitle">사용 설명서</div>
+      </div>
+    </a>
+    <nav class="kk-header__nav">
+      <a href="./" class="nav-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        실습으로 돌아가기
+      </a>
+    </nav>
+  </div>
+</header>
 
 <div class="wrap">
 
@@ -954,7 +938,7 @@
     <div class="final-cta-content">
       <h2>준비되셨다면 시작해 보세요</h2>
       <p>이제 직접 자신의 3년을 그려 보실 차례입니다.</p>
-      <a href="./" class="cta-btn">
+      <a href="./" class="cta-btn kk-btn kk-btn--primary kk-btn--lg">
         과목 선택 실습 시작하기
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>

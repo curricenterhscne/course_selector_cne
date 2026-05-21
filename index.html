@@ -5,57 +5,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>충남 고교 과목 선택 실습 — 고교학점제 시뮬레이션</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<!-- 꾸꾸클럽 디자인 시스템 v1.0 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/tokens/design-tokens.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/components/components.css">
 <style>
   :root {
-    /* 시안 A 토큰 */
-    --bg: #fafafa;
-    --bg-2: #f1f5f9;
-    --panel: #ffffff;
-    --ink: #0f172a;
-    --ink-2: #334155;
-    --ink-3: #64748b;
-    --ink-4: #94a3b8;
-    --line: #e2e8f0;
-    --line-soft: #f1f5f9;
+    /* ── 꾸꾸클럽 디자인 시스템 브리지 레이어 ──────────────────────────────
+       기존 변수명을 디자인 시스템 토큰으로 리매핑.
+       design-tokens.css 가 먼저 로드되므로 var() 참조가 정상 동작함.
+       --shadow-sm / --shadow-lg 는 동일 이름으로 정의되어 자동 상속 (자기참조 방지).
+       ─────────────────────────────────────────────────────────────────── */
 
-    --brand: #4f46e5;
-    --brand-2: #6366f1;
-    --brand-3: #818cf8;
-    --brand-soft: #eef2ff;
-    --brand-softer: #f5f3ff;
+    /* 표면 */
+    --bg:           var(--color-bg);          /* #DAF2FC 라이트블루 */
+    --bg-2:         var(--color-bg-subtle);
+    --panel:        var(--color-surface);
 
-    --ok: #059669;
-    --ok-soft: #d1fae5;
-    --warn: #d97706;
-    --warn-soft: #fef3c7;
-    --danger: #dc2626;
-    --danger-soft: #fee2e2;
+    /* 텍스트 */
+    --ink:          var(--color-text);
+    --ink-2:        var(--color-text-muted);
+    --ink-3:        var(--color-text-muted);
+    --ink-4:        var(--color-text-subtle);
 
-    --r-sm: 6px;
-    --r: 10px;
-    --r-lg: 14px;
-    --r-xl: 20px;
+    /* 경계선 */
+    --line:         var(--color-border);
+    --line-soft:    var(--color-border-subtle);
 
-    --shadow-sm: 0 1px 2px rgba(15,23,42,.04);
-    --shadow: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
-    --shadow-lg: 0 10px 30px -10px rgba(15,23,42,.12);
-    --shadow-up: 0 -8px 24px -6px rgba(15,23,42,.10);
-    --shadow-brand: 0 8px 24px -8px rgba(79,70,229,.4);
+    /* 브랜드 — 진블루 (#4F6EBE) */
+    --brand:        var(--color-brand);
+    --brand-2:      var(--kkuk-blue-600);
+    --brand-3:      var(--kkuk-blue-400);
+    --brand-soft:   var(--kkuk-blue-50);
+    --brand-softer: var(--kkuk-sky-50);
+
+    /* 상태 색 */
+    --ok:           var(--kkuk-success);      /* green-500 */
+    --ok-soft:      var(--kkuk-green-50);
+    --warn:         var(--kkuk-warning);
+    --warn-soft:    var(--kkuk-cream-100);
+    --danger:       var(--kkuk-danger);
+    --danger-soft:  #fee2e2;
+
+    /* 반경 */
+    --r-sm:         var(--radius-sm);
+    --r:            var(--radius-md);
+    --r-lg:         var(--radius-lg);
+    --r-xl:         var(--radius-xl);
+
+    /* 그림자 — sm/lg 는 동일 이름이므로 생략하고 design-tokens 상속 */
+    --shadow:       var(--shadow-md);
+    --shadow-up:    0 -8px 24px -6px rgba(30,42,69,.10);
+    --shadow-brand: 0 8px 24px -8px rgba(79,110,190,.40); /* 진블루 기준 */
 
     --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-    /* 호환성 aliases — D-2~D-4에서 순차 제거 */
-    --accent: var(--brand);
-    --accent-soft: var(--brand-soft);
-    --ink-soft: var(--ink-3);
-    --line-strong: var(--ink-2);
-    --row-1: var(--line-soft);
-    --row-2: var(--bg-2);
+    /* 기능적 색상 — 과목 유형 구분 (디자인 시스템 미정의, 유지) */
     --type-gongtong: #475569;
-    --type-ilban: #3b82f6;
-    --type-jinro: #ec4899;
-    --type-yunghap: #10b981;
+    --type-ilban:    #3b82f6;
+    --type-jinro:    #ec4899;
+    --type-yunghap:  #10b981;
+
+    /* 하위 호환 alias (JS fill.style.background 등에서 참조) */
+    --accent:        var(--brand);
+    --accent-soft:   var(--brand-soft);
+    --ink-soft:      var(--ink-3);
+    --line-strong:   var(--ink-2);
+    --row-1:         var(--line-soft);
+    --row-2:         var(--bg-2);
   }
+  /* design-tokens.css 의 body { font-size: 16px } 는 아래 body 블록에서 14px 로 오버라이드됨 */
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
   body {
@@ -67,31 +85,34 @@
   }
   .num { font-feature-settings: 'tnum'; font-variant-numeric: tabular-nums; }
 
-  /* ── 헤더 ─────────────────────────────────────────────────────────────── */
-  header {
-    background: rgba(255,255,255,0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--line);
-    padding: 12px 24px 10px;
-    position: sticky; top: 0; z-index: 50;
+  /* ── 헤더 — .kk-header (진블루 상단바 + 팬꾸미) ────────────────────────── */
+  /* 배경·sticky·shadow 는 components.css .kk-header 가 처리 */
+  /* 툴바 행: 헤더 아래 흰 배경 영역 */
+  .h-subnav {
+    background: var(--color-surface);
+    border-top: 1px solid rgba(255,255,255,0.18);
+    padding: 8px 24px 2px;
   }
-  .h-top {
-    display: flex; align-items: center; gap: 14px;
-    margin-bottom: 10px;
+  /* 진블루 헤더 위 아이콘·가이드 버튼을 흰 톤으로 오버라이드 */
+  .kk-header .icon-btn {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.28);
+    color: #fff;
   }
-  .logo {
-    display: inline-flex; align-items: center; gap: 9px;
-    font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
-    text-decoration: none; color: inherit;
+  .kk-header .icon-btn:hover {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.45);
+    color: #fff;
   }
-  .logo-badge {
-    background: var(--brand); color: #fff;
-    font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 700;
+  .kk-header .guide-btn {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.35);
+    color: #fff;
   }
-  .h-subtitle { font-size: 12px; color: var(--ink-3); }
-  .h-actions {
-    margin-left: auto; display: flex; gap: 6px; align-items: center;
+  .kk-header .guide-btn:hover {
+    background: rgba(255,255,255,0.28);
+    border-color: rgba(255,255,255,0.50);
+    color: #fff; text-decoration: none;
   }
   .icon-btn {
     width: 34px; height: 34px;
@@ -102,29 +123,8 @@
   .icon-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
   a.icon-btn { text-decoration: none; color: var(--ink-2); }
   a.icon-btn:hover { text-decoration: none; }
-  .guide-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 12px;
-    border: 1px solid var(--brand);
-    background: var(--brand-soft);
-    color: var(--brand);
-    border-radius: var(--r);
-    font: inherit; font-size: 13px; font-weight: 600;
-    text-decoration: none;
-    transition: all .15s; cursor: pointer;
-    white-space: nowrap;
-  }
-  .guide-btn:hover { background: var(--brand); color: #fff; text-decoration: none; }
-  .placeholder-guide-link {
-    display: inline-block; margin-top: 16px;
-    padding: 10px 20px;
-    background: var(--brand); color: #fff;
-    border-radius: var(--r); font-size: 13.5px; font-weight: 600;
-    text-decoration: none; box-shadow: var(--shadow-brand);
-    transition: transform .15s;
-  }
-  .placeholder-guide-link:hover { transform: translateY(-1px); text-decoration: none; }
-
+  /* .guide-btn → kk-btn kk-btn--secondary 추가됨. 크기·굵기만 오버라이드. */
+  .guide-btn { font-size: 13px; font-weight: 600; white-space: nowrap; }
   .h-toolbar {
     display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
     margin-bottom: 2px;
@@ -145,12 +145,8 @@
     position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
     color: var(--ink-4); pointer-events: none;
   }
-  .search-input {
-    width: 100%; height: 36px; padding: 0 12px 0 36px;
-    border: 1px solid var(--line); border-radius: var(--r);
-    background: var(--panel); font: inherit; font-size: 13px; transition: all .15s;
-  }
-  .search-input:focus { outline: 0; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+  /* .search-input → kk-input 추가됨. 높이·아이콘용 좌측 패딩만 오버라이드. */
+  .search-input { height: 36px; padding: 0 12px 0 36px; font-size: 13px; }
 
   #finder-dropdown {
     position: absolute; top: calc(100% + 4px); left: 0; z-index: 200;
@@ -158,7 +154,7 @@
     list-style: none; margin: 0; padding: 0; min-width: 100%; max-height: 280px;
     overflow-y: auto; box-shadow: var(--shadow-lg);
   }
-  #finder-dropdown li { padding: 8px 14px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+  #finder-dropdown li { padding: 8px 14px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--line-soft); white-space: nowrap; color: var(--color-text); }
   #finder-dropdown li:last-child { border-bottom: none; }
   #finder-dropdown li:hover, #finder-dropdown li.kbd-active { background: var(--brand-soft); color: var(--brand); }
   .finder-region { color: var(--ink-4); font-size: 11.5px; margin-left: 6px; }
@@ -171,11 +167,8 @@
     font-size: 12.5px; font-weight: 600;
   }
   .school-meta:empty { display: none; }
-  #dept-sel {
-    font: inherit; font-size: 12.5px; height: 36px; padding: 0 9px;
-    border: 1px solid var(--line); background: var(--panel); border-radius: var(--r);
-    min-width: 130px;
-  }
+  /* #dept-sel → kk-select 추가됨 */
+  #dept-sel { height: 36px; font-size: 12.5px; min-width: 130px; }
 
   .reco-row {
     margin-top: 10px; padding-top: 10px;
@@ -186,24 +179,16 @@
     font-size: 11px; color: var(--ink-3); font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.04em; margin-right: 4px; flex-shrink: 0;
   }
-  .reco-btn {
-    padding: 6px 13px; border: 1px solid var(--line); background: var(--panel);
-    border-radius: 99px; cursor: pointer; font: inherit; font-size: 12.5px;
-    color: var(--ink-2); font-weight: 500; transition: all .15s;
-  }
-  .reco-btn:hover { border-color: var(--brand); color: var(--brand); }
+  /* .reco-btn → kk-btn kk-btn--secondary kk-btn--sm 추가됨. 필 반경·활성 상태만 오버라이드. */
+  .reco-btn { border-radius: var(--radius-pill); font-size: 12.5px; }
   .reco-btn.active {
-    background: var(--brand); color: #fff; border-color: var(--brand);
-    box-shadow: 0 4px 12px -4px rgba(79,70,229,.5);
+    background: var(--color-brand); color: #fff; border-color: var(--color-brand);
+    box-shadow: 0 4px 12px -4px rgba(79,110,190,.5);
   }
   .reco-btn.active::before { content: '✓ '; }
   .right-tools { margin-left: auto; display: flex; gap: 6px; }
-  .tool-btn {
-    padding: 6px 12px; border: 1px solid var(--line); background: var(--panel);
-    border-radius: var(--r); cursor: pointer; font: inherit; font-size: 12.5px;
-    color: var(--ink-2); display: inline-flex; align-items: center; gap: 5px; transition: all .15s;
-  }
-  .tool-btn:hover { border-color: var(--ink-3); background: var(--bg-2); }
+  /* .tool-btn → kk-btn kk-btn--secondary kk-btn--sm 추가됨 */
+  .tool-btn { font-size: 12.5px; }
 
   main {
     display: grid;
@@ -235,10 +220,8 @@
   .changche-detail { display: flex; align-items: center; gap: 8px; }
   .changche-num { font-size: 15px; font-weight: 700; color: var(--brand); }
   .changche-sub { font-size: 11px; color: var(--ink-3); }
-  .grade-card {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: var(--r-lg); margin-bottom: 12px; overflow: hidden;
-  }
+  /* .grade-card → kk-card 추가됨 */
+  .grade-card { padding: 0; margin-bottom: 12px; overflow: hidden; }
   .grade-head {
     display: flex; align-items: center; gap: 12px;
     padding: 14px 16px; cursor: pointer; user-select: none;
@@ -295,9 +278,10 @@
   /* ── @media 768px ── */
   @media (max-width: 768px) {
     main { display: block; padding: 14px; padding-bottom: 88px; }
-    header { padding: 10px 14px 8px; }
+    .kk-header .kk-header__inner { padding: 8px 14px; }
+    .h-subnav { padding: 6px 14px 2px; }
     .h-toolbar { gap: 8px; }
-    .h-subtitle { display: none; }
+    .kk-header__subtitle { display: none; }
     .search-wrap { max-width: 100%; flex: 1 1 100%; order: 3; }
     .reco-row {
       flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
@@ -352,21 +336,10 @@
     .counter-panel .summary-card { margin: 12px; flex-shrink: 0; }
     body.printing aside.counter-panel { position: static !important; max-height: none !important; border-radius: 0; }
   }
-  .placeholder {
-    padding: 80px 40px; text-align: center;
-    color: var(--ink-soft); border: 1px dashed var(--line); font-style: italic;
-  }
-
-  .group-card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    margin-bottom: 16px;
-    overflow: hidden;
-    transition: border-color .15s;
-  }
-  .group-card:hover { border-color: var(--ink-4); }
-  .group-card.fixed { background: linear-gradient(180deg, var(--brand-softer) 0%, var(--panel) 60%); }
+  /* .group-card → kk-card 추가됨. padding 0 오버라이드 (내용은 group-head·table 내부). */
+  .group-card { padding: 0; margin-bottom: 16px; overflow: hidden; }
+  .group-card:hover { border-color: var(--color-border-strong); }
+  .group-card.fixed { background: linear-gradient(180deg, var(--kkuk-sky-50) 0%, var(--color-surface) 60%); }
   .group-head {
     padding: 14px 18px;
     border-bottom: 1px solid var(--line-soft);
@@ -382,10 +355,9 @@
   .group-card.fixed .group-mark { background: var(--brand); }
   .group-title { font-size: 13px; font-weight: 700; margin: 0; letter-spacing: 0.01em; color: var(--ink); }
   .group-meta { font-size: 11px; color: var(--ink-3); }
-  .group-meta .pill { background: var(--bg-2); border-color: var(--line); color: var(--ink-3); }
-  .group-meta .pill.ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
-  .group-meta .pill.warn { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
-  .group-meta .pill.err { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+  /* kk-badge warn/err — 디자인 시스템 미정의 의미 색 로컬 확장 */
+  .kk-badge--warn { background: var(--warn-soft); color: var(--warn); }
+  .kk-badge--err  { background: var(--danger-soft); color: var(--danger); }
 
   table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   th, td {
@@ -425,11 +397,7 @@
   .type-일반 { background: #3b82f6; }
   .type-진로 { background: #ec4899; }
   .type-융합 { background: #10b981; }
-  .pill {
-    display: inline-block; font-size: 10.5px; padding: 2px 7px;
-    border: 1px solid var(--line); border-radius: 99px;
-    background: var(--panel); color: var(--ink-soft);
-  }
+  /* .pill → kk-badge kk-badge--neutral 로 대체됨 */
 
   aside.counter-panel {
     position: sticky; top: 130px; align-self: start;
@@ -493,7 +461,8 @@
     background: var(--panel); border: 1px solid var(--line);
     border-radius: var(--r); padding: 8px 12px;
   }
-  .eval-badge { display:inline-block; font-size:9px; padding:1px 4px; border-radius:var(--r-sm); background:var(--bg-2); color:var(--ink-3); margin-left:4px; vertical-align:middle; font-family:'Pretendard',sans-serif; font-weight:500; }
+  /* .eval-badge → kk-badge kk-badge--unit 추가됨. 소형 크기·위치만 오버라이드. */
+  .eval-badge { font-size: 9px; padding: 1px 4px; margin-left: 4px; vertical-align: middle; display: inline-block; }
   td.sem-cell.soonjeung { background: var(--warn-soft); color: var(--warn); cursor: pointer; font-size: 11px; }
   td.sem-cell.soonjeung.selected-soonjeung { background: var(--warn); color: #fff; font-weight: 700; font-size: 11px; }
   td.sem-cell.soonjeung:hover:not(.selected-soonjeung) { opacity: 0.75; }
@@ -534,19 +503,18 @@
   .save-dropdown li:hover { background: var(--brand-soft); color: var(--brand); }
 
   /* 인쇄 / PDF 내보내기 스타일 */
-  body.printing .h-top,
-  body.printing .h-toolbar,
-  body.printing .reco-row,
+  body.printing .kk-header__inner,
+  body.printing .h-subnav,
   body.printing .legend { display: none !important; }
-  body.printing header { position: static !important; border-bottom: 2px solid #000; }
+  body.printing header { position: static !important; background: #fff; border-bottom: 2px solid #000; }
   body.printing td.sem-cell.selected {
     background: transparent !important; color: var(--ink) !important; font-weight: 700;
   }
   body.printing td.sem-cell.selected::before { content: '✓ '; }
   body.printing aside.counter-panel { position: static !important; max-height: none !important; }
   @media print {
-    .h-top, .h-toolbar, .reco-row, .legend { display: none !important; }
-    header { position: static !important; }
+    .kk-header__inner, .h-subnav, .legend { display: none !important; }
+    header { position: static !important; background: #fff; }
     td.sem-cell.selected { background: transparent !important; color: #000 !important; font-weight: 700; }
     td.sem-cell.selected::before { content: '✓ '; }
     aside.counter-panel { position: static !important; max-height: none !important; }
@@ -556,15 +524,19 @@
 </head>
 <body>
 
-<header>
-  <div class="h-top">
-    <div class="logo">
-      <span class="logo-badge">고교학점제</span>
-      <span>과목 선택 실습</span>
+<header class="kk-header">
+  <div class="kk-header__inner">
+    <div class="kk-header__brand">
+      <div class="kk-header__mascot">
+        <img src="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/assets/characters/paenkkumi.svg" alt="팬꾸미" width="32" height="32">
+      </div>
+      <div>
+        <div class="kk-header__title">과목 선택 실습</div>
+        <div class="kk-header__subtitle">충청남도교육청 · 2025·2026학년도 입학생</div>
+      </div>
     </div>
-    <span class="h-subtitle">충청남도교육청 · 2025·2026학년도 입학생</span>
-    <div class="h-actions">
-      <a href="guide.html" class="guide-btn" id="guide-link" title="사용 설명서">
+    <div class="kk-header__nav">
+      <a href="guide.html" class="guide-btn kk-btn kk-btn--secondary" id="guide-link" title="사용 설명서">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <span>사용 설명서</span>
       </a>
@@ -588,6 +560,7 @@
     </div>
   </div>
 
+  <div class="h-subnav">
   <div class="h-toolbar">
     <div class="year-pills">
       <button class="year-pill" data-year="2025">2025</button>
@@ -595,34 +568,35 @@
     </div>
     <div class="search-wrap">
       <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="school-finder" class="search-input" placeholder="학교명·지역으로 검색 (예: 천안, 외고)" autocomplete="off" />
+      <input type="text" id="school-finder" class="search-input kk-input" placeholder="학교명·지역으로 검색 (예: 천안, 외고)" autocomplete="off" />
       <ul id="finder-dropdown" style="display:none;"></ul>
     </div>
     <div class="school-meta" id="school-meta"></div>
-    <select id="dept-sel" style="display:none;"></select>
+    <select id="dept-sel" class="kk-select" style="display:none;"></select>
   </div>
 
   <div class="reco-row" id="presets" style="display:none;">
     <span class="reco-label">계열별 추천 과목</span>
-    <button class="reco-btn" data-preset="science">이공·자연</button>
-    <button class="reco-btn" data-preset="engineering">공학·IT</button>
-    <button class="reco-btn" data-preset="commerce">경상·사회</button>
-    <button class="reco-btn" data-preset="humanities">인문·어문</button>
-    <button class="reco-btn" data-preset="arts">예술</button>
-    <button class="reco-btn" data-preset="sports">체육</button>
+    <button class="reco-btn kk-btn kk-btn--secondary kk-btn--sm" data-preset="science">이공·자연</button>
+    <button class="reco-btn kk-btn kk-btn--secondary kk-btn--sm" data-preset="engineering">공학·IT</button>
+    <button class="reco-btn kk-btn kk-btn--secondary kk-btn--sm" data-preset="commerce">경상·사회</button>
+    <button class="reco-btn kk-btn kk-btn--secondary kk-btn--sm" data-preset="humanities">인문·어문</button>
+    <button class="reco-btn kk-btn kk-btn--secondary kk-btn--sm" data-preset="arts">예술</button>
+    <button class="reco-btn kk-btn kk-btn--secondary kk-btn--sm" data-preset="sports">체육</button>
     <div class="right-tools">
-      <button class="tool-btn" id="clear-btn">선택 비우기</button>
+      <button class="tool-btn kk-btn kk-btn--secondary kk-btn--sm" id="clear-btn">선택 비우기</button>
     </div>
   </div>
+  </div><!-- /.h-subnav -->
 </header>
 
 <main>
   <section id="curriculum-area">
-    <div class="placeholder" id="placeholder">
-      좌측 상단에서 학교를 선택하면 3개년 교육과정 편제표가 표시됩니다.<br>
-      과목 셀을 클릭하여 선택을 시뮬레이션할 수 있습니다.
-      <br>
-      <a href="guide.html" class="placeholder-guide-link">처음 사용하신다면 사용 설명서를 먼저 읽어 보세요 →</a>
+    <div class="kk-empty" id="placeholder">
+      <img class="kk-empty__char" src="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/assets/characters/paenkkumi.svg" alt="팬꾸미">
+      <p class="kk-empty__title">학교를 선택해 주세요</p>
+      <p class="kk-empty__body">좌측 상단에서 학교를 검색하면 3개년 교육과정 편제표가 표시됩니다.<br>과목 셀을 클릭해 선택을 시뮬레이션할 수 있습니다.</p>
+      <a href="guide.html" class="kk-btn kk-btn--primary">사용 설명서 보기 →</a>
     </div>
   </section>
 
@@ -885,7 +859,7 @@ async function loadCurriculum(code, preselectPicks) {
     pushUrl();
   } catch (e) {
     document.getElementById('curriculum-area').innerHTML =
-      `<div class="placeholder">해당 학교의 편제표 데이터를 찾지 못했습니다 (${state.year}학년도).<br><span style="font-size:11px;">code: ${code}</span></div>`;
+      `<div class="kk-empty"><p class="kk-empty__title">편제표를 불러오지 못했습니다</p><p class="kk-empty__body">해당 학교의 ${state.year}학년도 데이터를 찾지 못했습니다.<br><small>code: ${code}</small></p></div>`;
     document.getElementById('counter-panel').style.display = 'none';
     document.getElementById('presets').style.display = 'none';
   }
@@ -996,7 +970,7 @@ function renderGroup(group, gi) {
 
   let headerPills = '';
   if (isFixed) {
-    headerPills = '<span class="pill">학교 지정 — 전 학생 이수</span>';
+    headerPills = '<span class="kk-badge kk-badge--neutral">학교 지정 — 전 학생 이수</span>';
   } else if (group.isSoonjeung) {
     const activeSjSems = [...new Set(
       group.subjects.flatMap(s => (s.semCredits || []).map((c, i) => c ? i : -1).filter(i => i >= 0))
@@ -1009,12 +983,12 @@ function renderGroup(group, gi) {
     });
     const anySelected = activeSjSems.some(i => perSem[i] > 0);
     const statusPill = anySelected
-      ? `<span class="pill" style="background:var(--warn-soft);color:var(--warn);">✓ 희망과목 선택됨</span>`
+      ? `<span class="kk-badge kk-badge--warn">✓ 희망과목 선택됨</span>`
       : '';
     headerPills = `
-      <span class="pill" style="background:var(--warn-soft);color:var(--warn);">순증 — 희망자 수강</span>
+      <span class="kk-badge kk-badge--warn">순증 — 희망자 수강</span>
       ${statusPill}
-      <span class="pill">운영: ${activeSjSems.map(i => SEMESTER_LABELS[i]).join(', ') || '-'}</span>
+      <span class="kk-badge kk-badge--neutral">운영: ${activeSjSems.map(i => SEMESTER_LABELS[i]).join(', ') || '-'}</span>
     `;
   } else {
     const sc = group.selectCount || '';
@@ -1027,27 +1001,27 @@ function renderGroup(group, gi) {
         if (state.userSelections.has(`g${gi}-s${si}-sem${i}`)) perSem[i]++;
       }
     });
-    let cls = 'pill';
+    let cls = 'kk-badge kk-badge--neutral';
     let txt = sc;
     if (required) {
       const issues = activeSems.filter(i => perSem[i] !== required);
       if (issues.length === 0 && activeSems.length > 0) {
-        cls = 'pill ok'; txt = `✓ ${sc} 충족`;
+        cls = 'kk-badge kk-badge--recommend'; txt = `✓ ${sc} 충족`;
       } else if (activeSems.some(i => perSem[i] > required)) {
-        cls = 'pill err'; txt = `초과: ${activeSems.map(i=>`${SEMESTER_LABELS[i]}=${perSem[i]}`).join(' ')}`;
+        cls = 'kk-badge kk-badge--err'; txt = `초과: ${activeSems.map(i=>`${SEMESTER_LABELS[i]}=${perSem[i]}`).join(' ')}`;
       } else if (activeSems.some(i => perSem[i] > 0)) {
-        cls = 'pill warn'; txt = `진행중: ${activeSems.map(i=>`${SEMESTER_LABELS[i]} ${perSem[i]}/${required}`).join(' · ')}`;
+        cls = 'kk-badge kk-badge--warn'; txt = `진행중: ${activeSems.map(i=>`${SEMESTER_LABELS[i]} ${perSem[i]}/${required}`).join(' · ')}`;
       }
     }
     headerPills = `
       <span class="${cls}">${escapeHtml(txt)}</span>
-      <span class="pill">과목당 ${group.groupCredit || group.subjects[0]?.opCredit || '?'}학점</span>
-      <span class="pill">운영: ${activeSems.map(i => SEMESTER_LABELS[i]).join(', ') || '-'}</span>
+      <span class="kk-badge kk-badge--neutral">과목당 ${group.groupCredit || group.subjects[0]?.opCredit || '?'}학점</span>
+      <span class="kk-badge kk-badge--neutral">운영: ${activeSems.map(i => SEMESTER_LABELS[i]).join(', ') || '-'}</span>
     `;
   }
 
   let html = `
-    <div class="group-card${isFixed ? ' fixed' : ''}" data-group-idx="${gi}">
+    <div class="group-card kk-card${isFixed ? ' fixed' : ''}" data-group-idx="${gi}">
       <div class="group-head">
         <span class="group-mark">${escapeHtml(group.division)}</span>
         <h2 class="group-title">${isFixed ? '공통·필수 이수 과목' : '선택 과목 그룹'}</h2>
@@ -1100,7 +1074,7 @@ function renderGroup(group, gi) {
     const achMap = { '5단계': '5단', '3단계': '3단', 'P': 'P/F' };
     const achVal = subj.achievement || '';
     const evalBadge = achVal
-      ? `<span class="eval-badge">${achMap[achVal] || achVal}</span>`
+      ? `<span class="eval-badge kk-badge kk-badge--unit">${achMap[achVal] || achVal}</span>`
       : '';
     html += `
       <tr>
@@ -1178,7 +1152,7 @@ function renderMobile() {
       });
     });
 
-    html += `<div class="grade-card" id="grade-card-${grade}">
+    html += `<div class="grade-card kk-card" id="grade-card-${grade}">
       <div class="grade-head open" onclick="toggleGrade(${grade})">
         <span class="grade-num">${grade}</span>
         <div class="grade-title-block"><div class="grade-title">${grade}학년</div></div>
@@ -1502,10 +1476,12 @@ document.querySelectorAll('.year-pill').forEach(btn => {
       e.preventDefault();
       finderHighlight = Math.min(finderHighlight + 1, items.length - 1);
       items.forEach((li, i) => li.classList.toggle('kbd-active', i === finderHighlight));
+      items[finderHighlight].scrollIntoView({ block: 'nearest' });
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       finderHighlight = Math.max(finderHighlight - 1, 0);
       items.forEach((li, i) => li.classList.toggle('kbd-active', i === finderHighlight));
+      items[finderHighlight].scrollIntoView({ block: 'nearest' });
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const active = finderHighlight >= 0 ? items[finderHighlight] : items[0];
