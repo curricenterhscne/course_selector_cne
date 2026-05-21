@@ -716,6 +716,8 @@ const state = {
   selectedDept: null,
   userSelections: new Set(),
   activePreset: null,
+  pendingSubjects: [],   // want/core 이름 목록 (majors에서 넘어온 경우)
+  pendingMajorId: '',
   isMobile: window.matchMedia('(max-width: 768px)').matches,
 };
 window.matchMedia('(max-width: 768px)').addEventListener('change', e => {
@@ -763,7 +765,10 @@ function serializeStateToUrl() {
 }
 function deserializeUrl() {
   const p = new URLSearchParams(window.location.search);
-  const out = { year: p.get('y') || '2026', schoolBase: p.get('s'), dept: p.get('d'), picks: [] };
+  const parseCsv = key => p.get(key) ? p.get(key).split(',').map(s => s.trim()).filter(Boolean) : [];
+  const out = { year: p.get('y') || '2026', schoolBase: p.get('s'), dept: p.get('d'), picks: [],
+                pendingSubjects: [...parseCsv('want'), ...parseCsv('core')],
+                pendingMajorId: p.get('majorId') || '' };
   if (p.get('p')) {
     out.picks = p.get('p').split(',').map(s => {
       const m = s.match(/^g(\d+)s(\d+)i(\d+)$/);
@@ -782,6 +787,8 @@ async function loadSchools() {
 
   const url = deserializeUrl();
   state.year = url.year;
+  state.pendingSubjects = url.pendingSubjects;
+  state.pendingMajorId = url.pendingMajorId;
   document.querySelectorAll('.year-pill').forEach(b => b.classList.toggle('active', b.dataset.year === state.year));
 
   if (url.schoolBase) {
@@ -880,6 +887,27 @@ async function loadCurriculum(code, preselectPicks) {
     state.selectedCode = code;
     state.userSelections = new Set(preselectPicks || []);
     state.activePreset = null;
+
+    // majors에서 want/core 이름으로 넘어온 경우 커리큘럼에서 과목 이름 매칭
+    if (state.pendingSubjects.length) {
+      const nameSet = new Set(state.pendingSubjects);
+      state.curriculum.groups.forEach((group, gi) => {
+        const isFixed = group.division === '지정' || group.isSoonjeung;
+        group.subjects.forEach((subj, si) => {
+          const clean = subj.name.replace('*', '').trim();
+          const hit = nameSet.has(clean) || [...nameSet].some(n => clean === n || clean.includes(n) || n.includes(clean));
+          if (!hit) return;
+          if (isFixed) {
+            (subj.semCredits || []).forEach((c, semIdx) => { if (c) state.userSelections.add(`g${gi}-s${si}-sem${semIdx}`); });
+          } else if (group.semesters) {
+            group.semesters.forEach((active, semIdx) => { if (active) state.userSelections.add(`g${gi}-s${si}-sem${semIdx}`); });
+          }
+        });
+      });
+      const n = state.userSelections.size;
+      if (n > 0) setTimeout(() => showToast(`${state.pendingMajorId ? state.pendingMajorId + ' 관련 ' : ''}추천 과목 ${n}개가 자동 선택됐어요. 직접 조정해 보세요`), 400);
+    }
+
     render();
     pushUrl();
   } catch (e) {
