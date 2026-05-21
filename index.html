@@ -209,6 +209,10 @@
     background: rgba(15,23,42,.45); z-index: 88;
   }
   .sheet-backdrop.show { display: block; }
+  @media (max-width: 768px) {
+    /* 시트 열릴 때 backdrop이 헤더(200)까지 덮도록 z-index 올림 */
+    .sheet-backdrop.show { z-index: 250; }
+  }
   /* ── 모바일 그레이드 아코디언 ── */
   .changche-card {
     display: flex; align-items: center; gap: 14px;
@@ -311,6 +315,7 @@
     }
     aside.counter-panel.sheet-open {
       max-height: 78vh; overflow: hidden; border-radius: 22px 22px 0 0;
+      z-index: 300; /* 헤더(200) 위로 올려 mobile-dock(닫기 버튼)이 가려지지 않도록 */
     }
     .sheet-scroll {
       overflow-y: auto; flex: 1;
