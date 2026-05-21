@@ -91,8 +91,9 @@
   .h-subnav {
     background: var(--color-surface);
     border-top: 1px solid rgba(255,255,255,0.18);
-    padding: 8px 24px 2px;
+    padding: 0;
   }
+  .h-subnav__inner { max-width: 1600px; margin-inline: auto; padding: 8px 28px 2px; }
   /* 진블루 헤더 위 아이콘·가이드 버튼을 흰 톤으로 오버라이드 */
   .kk-header .icon-btn {
     background: rgba(255,255,255,0.12);
@@ -279,7 +280,8 @@
   @media (max-width: 768px) {
     main { display: block; padding: 14px; padding-bottom: 88px; }
     .kk-header .kk-header__inner { padding: 8px 14px; }
-    .h-subnav { padding: 6px 14px 2px; }
+    .h-subnav { padding: 0; }
+    .h-subnav__inner { padding: 6px 14px 2px; }
     .h-toolbar { gap: 8px; }
     .kk-header__subtitle { display: none; }
     .search-wrap { max-width: 100%; flex: 1 1 100%; order: 3; }
@@ -300,7 +302,7 @@
       position: fixed !important;
       bottom: 0; left: 0; right: 0; top: auto !important;
       max-height: 62px; overflow: hidden;
-      background: #ffffff;
+      background: #ffffff !important;
       box-shadow: 0 -4px 24px rgba(15,23,42,.18); z-index: 90;
       border-radius: 18px 18px 0 0;
       border-top: 2px solid var(--line);
@@ -329,7 +331,10 @@
     .md-label { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; }
     .md-value { font-size: 22px; font-weight: 800; color: var(--ink); }
     .md-of { font-size: 13px; font-weight: 500; color: var(--ink-3); }
-    .md-expand { font-size: 13px; font-weight: 700; color: var(--brand); white-space: nowrap; }
+    .md-expand {
+      font-size: 13px; font-weight: 700; color: var(--brand); white-space: nowrap;
+      background: var(--brand-soft); padding: 5px 12px; border-radius: var(--r-pill);
+    }
     .counter-panel .progress-card { border-radius: 0; margin: 0; flex-shrink: 0; }
     .counter-panel .progress-card::after { display: none; }
     #soonjeung-row, #changche-row { padding: 0 12px; }
@@ -531,8 +536,8 @@
         <img src="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/assets/characters/paenkkumi.svg" alt="팬꾸미" width="32" height="32">
       </div>
       <div>
-        <div class="kk-header__title">과목 선택 실습</div>
-        <div class="kk-header__subtitle">충청남도교육청 · 2025·2026학년도 입학생</div>
+        <div class="kk-header__title">고교학점제 과목 선택 실습</div>
+        <div class="kk-header__subtitle">학생 중심 충남 교육, 학생 주도성을 키우는 고교학점제</div>
       </div>
     </div>
     <div class="kk-header__nav">
@@ -561,6 +566,7 @@
   </div>
 
   <div class="h-subnav">
+  <div class="h-subnav__inner">
   <div class="h-toolbar">
     <div class="year-pills">
       <button class="year-pill" data-year="2025">2025</button>
@@ -587,6 +593,7 @@
       <button class="tool-btn kk-btn kk-btn--secondary kk-btn--sm" id="clear-btn">선택 비우기</button>
     </div>
   </div>
+  </div><!-- /.h-subnav__inner -->
   </div><!-- /.h-subnav -->
 </header>
 
@@ -713,15 +720,28 @@ window.matchMedia('(max-width: 768px)').addEventListener('change', e => {
 
 const SEMESTER_LABELS = ['1-1', '1-2', '2-1', '2-2', '3-1', '3-2'];
 
-const REQUIRED_CREDITS = {
-  '국어': 8, '수학': 8, '영어': 8, '사회': 8, '한국사': 6,
-  '과학': 8, '체육': 8, '예술': 6,
-};
+// 특목고(외국어고·예술고) 여부 — 예술·기·정·외·한·교 필수학점이 다름
+function isSpecialSchool() {
+  const school = state.schools.find(s => s.학교코드 === state.selectedBaseCode);
+  if (!school) return false;
+  const name = school.학교명 || '';
+  return name.includes('외국어고') || name.includes('예술고');
+}
+// 교과(군)별 필수 이수학점: [일반고] 국어8·수학8·영어8·한국사6·사회8·과학10·체육10·예술10
+//                         [특목고] 동일, 단 예술5
+function getRequiredCredits() {
+  const sp = isSpecialSchool();
+  return {
+    '국어': 8, '수학': 8, '영어': 8, '한국사': 6, '사회': 8,
+    '과학': 10, '체육': 10, '예술': sp ? 5 : 10,
+  };
+}
 const GROUPED_CATEGORY = {
   label: '기·정·외·한·교',
   members: ['기술·가정', '정보', '정보과학', '제2외국어', '한문', '교양', '정보·통신'],
-  required: 12,
 };
+// 기·정·외·한·교 합산 필수학점: [일반고] 16, [특목고] 12
+function getGroupedRequired() { return isSpecialSchool() ? 12 : 16; }
 
 function serializeStateToUrl() {
   const p = new URLSearchParams();
@@ -1298,7 +1318,8 @@ function updateCounter() {
         (subj.semCredits || []).forEach(c => {
           const n = parseFloat(c) || 0;
           total += n;
-          const g = subj.group || '기타';
+          // 한국사1·한국사2는 JSON group이 '사회'로 저장되어 있으므로 별도 리매핑
+          const g = (subj.name || '').startsWith('한국사') ? '한국사' : (subj.group || '기타');
           groupTotals[g] = (groupTotals[g] || 0) + n;
         });
       });
@@ -1310,7 +1331,7 @@ function updateCounter() {
           if (state.userSelections.has(key)) {
             const credit = parseFloat(subj.opCredit || group.groupCredit || 0) || 0;
             total += credit;
-            const g = subj.group || '기타';
+            const g = (subj.name || '').startsWith('한국사') ? '한국사' : (subj.group || '기타');
             groupTotals[g] = (groupTotals[g] || 0) + credit;
             perSemester[i]++;
           }
@@ -1385,8 +1406,9 @@ function updateCounter() {
   }
 
   // 교과군별 표시 (필수 이수학점 충족 여부 포함)
-  const ord = ['국어','수학','영어','사회','과학','정보','한국사','체육','예술','기술·가정','제2외국어','한문','교양','정보·통신','기타'];
-  const labelMap = { '과학': '과학(자연)', '정보': '정보과학' };
+  const REQUIRED_CREDITS = getRequiredCredits();
+  const ord = ['국어','수학','영어','한국사','사회','과학','체육','예술','기술·가정','제2외국어','한문','교양','정보·통신','기타'];
+  const labelMap = {};
 
   // 합산 그룹(기·정·외·한·교) 집계
   let groupedSum = 0;
@@ -1421,7 +1443,7 @@ function updateCounter() {
   ).join('');
 
   if (groupedSum > 0) {
-    breakdownHtml += renderCreditRow(GROUPED_CATEGORY.label, groupedSum, GROUPED_CATEGORY.required);
+    breakdownHtml += renderCreditRow(GROUPED_CATEGORY.label, groupedSum, getGroupedRequired());
   }
 
   document.getElementById('group-breakdown').innerHTML =
@@ -1709,7 +1731,7 @@ async function exportToXLSX() {
       ['교과군', '이수학점', '필수학점'],
     ];
     Object.entries(sum.groupBreakdown).forEach(([k, v]) => {
-      rows2.push([k, fmtC(v), REQUIRED_CREDITS[k] ?? '']);
+      rows2.push([k, fmtC(v), getRequiredCredits()[k] ?? '']);
     });
     window.XLSX.utils.book_append_sheet(wb, window.XLSX.utils.aoa_to_sheet(rows2), '요약');
 
