@@ -791,6 +791,15 @@ async function loadSchools() {
   state.pendingMajorId = url.pendingMajorId;
   document.querySelectorAll('.year-pill').forEach(b => b.classList.toggle('active', b.dataset.year === state.year));
 
+  // majors에서 넘어온 경우 플레이스홀더를 토꾸미 안내로 교체
+  if (state.pendingSubjects.length) {
+    const label = state.pendingMajorId ? `<strong>${state.pendingMajorId}</strong> 관련 ` : '';
+    document.getElementById('placeholder').innerHTML = `
+      <img class="kk-empty__char" src="https://cdn.jsdelivr.net/gh/curricenterhscne/cne-design-system@main/assets/characters/tokkumi.svg" alt="토꾸미">
+      <p class="kk-empty__title">학교를 선택해 주세요</p>
+      <p class="kk-empty__body">학교를 선택하면, 학교의 교육과정에서 ${label}추천 과목이 자동 선택되어요.</p>`;
+  }
+
   if (url.schoolBase) {
     const school = state.schools.find(s => s.학교코드 === url.schoolBase);
     if (school) document.getElementById('school-finder').value = school.학교명;
