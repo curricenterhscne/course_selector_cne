@@ -424,3 +424,50 @@ A-2 (extract_data.py 창체 추출) 건너뛰고 A-3 (index.html 수정)부터 �
   8. 담당자연락처·비밀번호 출력 필드에서 완전 제외
 - 검증: 핵심 함수·CDN·개인정보 제외 확인 ✓
 - 사용자 확인 필요 사항: 없음
+
+---
+
+## [2026-05-21] DS-1. 꾸꾸클럽 디자인 시스템 v1.0 적용 (커밋 6ab7358)
+
+- 수정 파일: index.html, guide.html
+- 핵심 변경:
+  1. jsDelivr CDN으로 design-tokens.css + components.css 로드
+  2. 브리지 레이어: 기존 --brand, --ink 등 → 디자인 토큰 var() 리매핑
+  3. 헤더 → .kk-header (팬꾸미 마스코트, blue bar + white h-subnav)
+  4. 버튼/입력 → .kk-btn, .kk-input, .kk-select
+  5. 카드/배지 → .kk-card, .kk-badge (JS renderGroup/renderMobile template literal 수정)
+  6. 빈 상태 → .kk-empty (팬꾸미 캐릭터 이미지)
+  7. guide.html: 동일한 CDN + 브리지, .kk-header, cta-btn → kk-btn--primary
+- 검증: JS 문법 OK, 드롭다운 텍스트 흰색 버그 수정, 키보드 화살표 스크롤 수정
+- 사용자 확인 필요 사항: 없음
+
+---
+
+## [2026-05-21] DS-2. 교과군별 필수학점·데이터·UI 수정 (커밋 422e989)
+
+- 수정 파일: index.html
+- 핵심 변경:
+  1. isSpecialSchool() / getRequiredCredits() / getGroupedRequired() 함수 신설
+     - 일반고: 과학10·체육10·예술10·기·정·외·한·교16
+     - 특목고(외국어고·예술고): 예술5·기·정·외·한·교12
+  2. 한국사1·2: JSON group='사회' → updateCounter 내 '한국사'로 런타임 리매핑
+  3. 레이블 '과학(자연)' → '과학' 수정
+  4. 헤더 타이틀 변경: '고교학점제 과목 선택 실습' / '학생 주도성을 키우는 고교학점제'
+  5. h-subnav__inner 래퍼 추가 → PC 화면 콘텐츠 1600px 가운데 정렬
+  6. 모바일 배경 투명 버그: background:#ffffff !important (데스크탑 규칙 후위 선언 문제)
+  7. 모바일 expand 버튼 brand-soft pill 스타일 추가
+- 검증: JS 문법 OK, 사용자 시각 확인
+- 사용자 확인 필요 사항: 없음
+
+---
+
+## [2026-05-21] DS-3. 모바일 시트 닫기 버튼 z-index 수정 (커밋 cdc2a2a)
+
+- 수정 파일: index.html
+- 핵심 변경:
+  - 원인: 시트 78vh로 열릴 때 panel 상단이 sticky 헤더(z-index:200) 뒤에 가려짐
+    → mobile-dock("닫기 ▾")이 헤더에 완전히 숨겨지는 현상
+  - sheet-open 상태에서 panel z-index:300 (헤더 위)
+  - backdrop .show 상태에서 z-index:250 (panel 아래·헤더 위, 모바일 전용)
+- 검증: JS 문법 OK
+- 사용자 확인 필요 사항: 없음
