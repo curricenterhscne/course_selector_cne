@@ -1,0 +1,175 @@
+<!-- =============================================================================
+     꾸꾸클럽 캐릭터 SVG 자산 모음 (kkuk-characters.svg)
+     충남 고교학점제 온마당 디자인 시스템 v1.0
+
+     캐릭터:
+       · 토꾸미 (toккumi) — 토끼, 갓생형, 네잎클로버 부적
+       · 팬꾸미 (paenkkumi) — 곰(다크서클로 판다처럼 보임), 무덤덤·성실형 [메인]
+       · 꾸미   (kkumi)  — 애벌레, "학교까지 30일 걸려 온라인 수업"
+
+     사용법 1 (인라인): 아래 <symbol> 한 벌을 페이지 최상단(보이지 않게)에 넣고,
+        <svg class="kkuk-char"><use href="#kkuk-paenkkumi"/></svg> 로 호출.
+     사용법 2 (외부 파일): 이 파일을 그대로 두고
+        <svg class="kkuk-char"><use href="assets/kkuk-characters.svg#kkuk-paenkkumi"/></svg>
+
+     색: currentColor = 윤곽선(기본 잉크), 코 도트는 브랜드 진블루 고정(#4F6EBE).
+     크기: 각 symbol viewBox 0 0 100 110 기준. CSS로 width/height 조절.
+     ============================================================================= -->
+
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute; width:0; height:0; overflow:hidden;" aria-hidden="true">
+  <defs>
+    <style>
+      .kk-line { fill: #FFFFFF; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .kk-fill { fill: currentColor; stroke: none; }
+      .kk-dot  { fill: #4F6EBE; stroke: none; }   /* 브랜드 진블루 코 */
+      .kk-clover { fill: #7BCE7C; stroke: #221F20; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <!-- ===== 팬꾸미 (메인) — 정면 전신, 무덤덤 표정 ===== -->
+  <symbol id="kkuk-paenkkumi" viewBox="0 0 100 110">
+    <!-- 귀 (검은 곰귀) -->
+    <ellipse class="kk-fill" cx="26" cy="30" rx="11" ry="11"/>
+    <ellipse class="kk-fill" cx="74" cy="30" rx="11" ry="11"/>
+    <!-- 머리 -->
+    <ellipse class="kk-line" cx="50" cy="44" rx="34" ry="28"/>
+    <!-- 눈썹+눈 (무덤덤) -->
+    <path class="kk-line" style="fill:none" d="M 34 38 q 5 -3 10 0"/>
+    <path class="kk-line" style="fill:none" d="M 56 38 q 5 -3 10 0"/>
+    <ellipse class="kk-fill" cx="39" cy="44" rx="2.2" ry="3.4"/>
+    <ellipse class="kk-fill" cx="61" cy="44" rx="2.2" ry="3.4"/>
+    <!-- 코 (블루 도트) -->
+    <circle class="kk-dot" cx="50" cy="52" r="3.6"/>
+    <!-- 입 (작은 무표정) -->
+    <path class="kk-line" style="fill:none" d="M 47 59 q 3 2 6 0"/>
+    <!-- 몸통/팔다리 -->
+    <path class="kk-line" d="M 30 70 q -4 22 8 30 q 12 6 24 0 q 12 -8 8 -30 z"/>
+  </symbol>
+
+  <!-- ===== 팬꾸미 — 얼굴만, 윙크(성공/강조용) ===== -->
+  <symbol id="kkuk-paenkkumi-face-wink" viewBox="0 0 100 90">
+    <ellipse class="kk-fill" cx="26" cy="26" rx="11" ry="11"/>
+    <ellipse class="kk-fill" cx="74" cy="26" rx="11" ry="11"/>
+    <ellipse class="kk-line" cx="50" cy="44" rx="36" ry="29"/>
+    <path class="kk-line" style="fill:none" d="M 33 40 q 5 -3 10 0"/>     <!-- 왼눈 살짝 -->
+    <ellipse class="kk-fill" cx="38" cy="46" rx="2.2" ry="3.4"/>
+    <path class="kk-line" style="fill:none" d="M 58 47 q 5 4 10 -1"/>     <!-- 오른눈 윙크 -->
+    <circle class="kk-dot" cx="50" cy="54" r="3.8"/>
+    <path class="kk-line" style="fill:none" d="M 45 61 q 5 4 10 0"/>      <!-- 살짝 미소 -->
+  </symbol>
+
+  <!-- ===== 토꾸미 — 정면 전신, 미소 ===== -->
+  <symbol id="kkuk-tokkumi" viewBox="0 0 100 124">
+    <!-- 귀 (긴 토끼귀, 위로 솟음) -->
+    <path class="kk-line" d="M 43 6 C 38 6 36 26 38 46 C 40 56 50 56 51 46 C 52 28 50 6 43 6 Z"/>
+    <path class="kk-line" d="M 60 8 C 55 10 54 30 57 48 C 59 57 67 55 67 45 C 67 26 66 9 60 8 Z"/>
+    <!-- 머리 -->
+    <ellipse class="kk-line" cx="50" cy="64" rx="34" ry="27"/>
+    <!-- 눈 -->
+    <ellipse class="kk-fill" cx="41" cy="62" rx="2.4" ry="3.2"/>
+    <ellipse class="kk-fill" cx="59" cy="62" rx="2.4" ry="3.2"/>
+    <!-- 코 (블루 도트) -->
+    <circle class="kk-dot" cx="50" cy="69" r="3.4"/>
+    <!-- 입 -->
+    <path class="kk-line" style="fill:none" d="M 47 74 q 3 4 6 0"/>
+    <!-- 몸통/팔다리 -->
+    <path class="kk-line" d="M 32 88 q -4 20 8 28 q 10 5 20 0 q 12 -8 8 -28 z"/>
+  </symbol>
+
+  <!-- ===== 토꾸미 — 네잎클로버 들고 (행운/권장용) ===== -->
+  <symbol id="kkuk-tokkumi-clover" viewBox="0 0 120 124">
+    <path class="kk-line" d="M 38 6 C 33 6 31 26 33 46 C 35 56 45 56 46 46 C 47 28 45 6 38 6 Z"/>
+    <path class="kk-line" d="M 55 8 C 50 10 49 30 52 48 C 54 57 62 55 62 45 C 62 26 61 9 55 8 Z"/>
+    <ellipse class="kk-line" cx="45" cy="64" rx="34" ry="27"/>
+    <ellipse class="kk-fill" cx="36" cy="62" rx="2.4" ry="3.2"/>
+    <ellipse class="kk-fill" cx="54" cy="62" rx="2.4" ry="3.2"/>
+    <circle class="kk-dot" cx="45" cy="69" r="3.4"/>
+    <path class="kk-line" style="fill:none" d="M 42 74 q 3 4 6 0"/>
+    <path class="kk-line" d="M 27 88 q -4 20 8 28 q 10 5 20 0 q 12 -8 8 -28 z"/>
+    <!-- 네잎클로버 (오른팔이 든 모양) -->
+    <g transform="translate(96 70)">
+      <circle class="kk-clover" cx="-5" cy="-5" r="6"/>
+      <circle class="kk-clover" cx="5" cy="-5" r="6"/>
+      <circle class="kk-clover" cx="-5" cy="5" r="6"/>
+      <circle class="kk-clover" cx="5" cy="5" r="6"/>
+      <path style="fill:none; stroke:#221F20; stroke-width:2; stroke-linecap:round;" d="M 0 6 q 2 10 -6 16"/>
+    </g>
+  </symbol>
+
+  <!-- ===== 꾸미 (애벌레) — 평온 ===== -->
+  <symbol id="kkuk-kkumi" viewBox="0 0 120 60">
+    <!-- 더듬이 -->
+    <path class="kk-line" style="fill:none" d="M 22 22 q -3 -10 -8 -14"/>
+    <circle class="kk-line" cx="13" cy="7" r="3.5"/>
+    <path class="kk-line" style="fill:none" d="M 30 20 q 0 -12 2 -16"/>
+    <circle class="kk-line" cx="32" cy="3" r="3.5"/>
+    <!-- 마디 3개 -->
+    <ellipse class="kk-line" cx="28" cy="36" rx="18" ry="15"/>
+    <ellipse class="kk-line" cx="56" cy="38" rx="16" ry="14"/>
+    <ellipse class="kk-line" cx="82" cy="38" rx="15" ry="13"/>
+    <!-- 마디 구분선 -->
+    <path class="kk-line" style="fill:none" d="M 44 28 q 2 8 0 16"/>
+    <path class="kk-line" style="fill:none" d="M 70 30 q 2 8 0 14"/>
+    <!-- 얼굴 -->
+    <circle class="kk-fill" cx="22" cy="33" r="2"/>
+    <circle class="kk-dot" cx="20" cy="40" r="2.6"/>
+    <path class="kk-line" style="fill:none" d="M 24 42 q 4 4 8 1"/>
+  </symbol>
+
+  <!-- ===== 꾸미 — 졸림 (대기/로딩용, zzz) ===== -->
+  <symbol id="kkuk-kkumi-sleepy" viewBox="0 0 130 65">
+    <path class="kk-line" style="fill:none" d="M 22 24 q -3 -10 -8 -14"/>
+    <circle class="kk-line" cx="13" cy="9" r="3.5"/>
+    <path class="kk-line" style="fill:none" d="M 30 22 q 0 -12 2 -16"/>
+    <circle class="kk-line" cx="32" cy="5" r="3.5"/>
+    <ellipse class="kk-line" cx="28" cy="40" rx="18" ry="15"/>
+    <ellipse class="kk-line" cx="56" cy="42" rx="16" ry="14"/>
+    <ellipse class="kk-line" cx="82" cy="42" rx="15" ry="13"/>
+    <path class="kk-line" style="fill:none" d="M 44 32 q 2 8 0 16"/>
+    <path class="kk-line" style="fill:none" d="M 70 34 q 2 8 0 14"/>
+    <!-- 감은 눈 -->
+    <path class="kk-line" style="fill:none" d="M 17 38 q 4 3 8 0"/>
+    <circle class="kk-dot" cx="22" cy="44" r="2.6"/>
+    <!-- zzz -->
+    <text x="40" y="18" font-family="sans-serif" font-size="11" fill="currentColor" font-weight="700">z</text>
+    <text x="50" y="10" font-family="sans-serif" font-size="8" fill="currentColor" font-weight="700">z</text>
+  </symbol>
+
+  <!-- ===== 꾸꾸클럽 단체 (3캐릭터 미니, 푸터/엠블럼용) ===== -->
+  <symbol id="kkuk-trio" viewBox="0 0 220 90">
+    <!-- 토꾸미 -->
+    <g transform="translate(0 0) scale(0.55)">
+      <path class="kk-line" d="M 43 6 C 38 6 36 26 38 46 C 40 56 50 56 51 46 C 52 28 50 6 43 6 Z"/>
+      <path class="kk-line" d="M 60 8 C 55 10 54 30 57 48 C 59 57 67 55 67 45 C 67 26 66 9 60 8 Z"/>
+      <ellipse class="kk-line" cx="50" cy="64" rx="34" ry="27"/>
+      <ellipse class="kk-fill" cx="41" cy="62" rx="2.4" ry="3.2"/>
+      <ellipse class="kk-fill" cx="59" cy="62" rx="2.4" ry="3.2"/>
+      <circle class="kk-dot" cx="50" cy="69" r="3.4"/>
+      <path class="kk-line" style="fill:none" d="M 47 74 q 3 4 6 0"/>
+    </g>
+    <!-- 팬꾸미 -->
+    <g transform="translate(75 14) scale(0.62)">
+      <ellipse class="kk-fill" cx="26" cy="26" rx="11" ry="11"/>
+      <ellipse class="kk-fill" cx="74" cy="26" rx="11" ry="11"/>
+      <ellipse class="kk-line" cx="50" cy="44" rx="36" ry="29"/>
+      <path class="kk-line" style="fill:none" d="M 33 40 q 5 -3 10 0"/>
+      <path class="kk-line" style="fill:none" d="M 57 40 q 5 -3 10 0"/>
+      <ellipse class="kk-fill" cx="38" cy="46" rx="2.2" ry="3.4"/>
+      <ellipse class="kk-fill" cx="62" cy="46" rx="2.2" ry="3.4"/>
+      <circle class="kk-dot" cx="50" cy="54" r="3.8"/>
+      <path class="kk-line" style="fill:none" d="M 47 61 q 3 2 6 0"/>
+    </g>
+    <!-- 꾸미 -->
+    <g transform="translate(158 36) scale(0.5)">
+      <path class="kk-line" style="fill:none" d="M 22 22 q -3 -10 -8 -14"/>
+      <circle class="kk-line" cx="13" cy="7" r="3.5"/>
+      <path class="kk-line" style="fill:none" d="M 30 20 q 0 -12 2 -16"/>
+      <circle class="kk-line" cx="32" cy="3" r="3.5"/>
+      <ellipse class="kk-line" cx="28" cy="36" rx="18" ry="15"/>
+      <ellipse class="kk-line" cx="56" cy="38" rx="16" ry="14"/>
+      <circle class="kk-dot" cx="20" cy="40" r="2.6"/>
+      <path class="kk-line" style="fill:none" d="M 24 42 q 4 4 8 1"/>
+    </g>
+  </symbol>
+
+</svg>

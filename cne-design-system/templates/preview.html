@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>꾸꾸클럽 디자인 시스템 v1.0 — 라이브 프리뷰</title>
+
+<!-- Pretendard 웹폰트 (실제 배포 시 자체 호스팅 권장) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+
+<!-- 디자인 시스템 -->
+<link rel="stylesheet" href="../tokens/design-tokens.css">
+<link rel="stylesheet" href="../components/components.css">
+
+<style>
+  /* 프리뷰 전용(디자인 시스템 아님) */
+  .demo-section { padding: var(--space-8) 0; border-bottom: 1px dashed var(--color-border-strong); }
+  .demo-label { font-size: var(--text-xs); letter-spacing: var(--tracking-wide); text-transform: uppercase;
+                color: var(--color-text-subtle); font-weight: var(--weight-semibold); margin-bottom: var(--space-4); }
+  .demo-row { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; margin-bottom: var(--space-3); }
+  .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-4); }
+  .swatch { display: flex; flex-direction: column; gap: var(--space-1); }
+  .swatch__chip { height: 56px; border-radius: var(--radius-md); border: 1px solid var(--color-border-subtle); }
+  .swatch__name { font-size: var(--text-xs); font-weight: var(--weight-medium); }
+  .swatch__hex  { font-size: var(--text-xs); color: var(--color-text-subtle); font-family: var(--font-mono); }
+  .type-sample { margin: 0 0 var(--space-2); color: var(--color-heading); }
+  .type-meta { font-size: var(--text-xs); color: var(--color-text-subtle); font-family: var(--font-mono); }
+</style>
+</head>
+<body>
+
+<!-- ===== 캐릭터 SVG 심볼 정의 (페이지 1회) ===== -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs><style>.kk-line{fill:#fff;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.kk-fill{fill:currentColor;stroke:none}.kk-dot{fill:#4F6EBE;stroke:none}.kk-clover{fill:#7BCE7C;stroke:#221F20;stroke-width:2}</style></defs>
+<symbol id="kkuk-paenkkumi" viewBox="0 0 100 110"><ellipse class="kk-fill" cx="26" cy="30" rx="11" ry="11"/><ellipse class="kk-fill" cx="74" cy="30" rx="11" ry="11"/><ellipse class="kk-line" cx="50" cy="44" rx="34" ry="28"/><path class="kk-line" style="fill:none" d="M 34 38 q 5 -3 10 0"/><path class="kk-line" style="fill:none" d="M 56 38 q 5 -3 10 0"/><ellipse class="kk-fill" cx="39" cy="44" rx="2.2" ry="3.4"/><ellipse class="kk-fill" cx="61" cy="44" rx="2.2" ry="3.4"/><circle class="kk-dot" cx="50" cy="52" r="3.6"/><path class="kk-line" style="fill:none" d="M 47 59 q 3 2 6 0"/><path class="kk-line" d="M 30 70 q -4 22 8 30 q 12 6 24 0 q 12 -8 8 -30 z"/></symbol>
+<symbol id="kkuk-tokkumi" viewBox="0 0 100 124"><path class="kk-line" d="M 43 6 C 38 6 36 26 38 46 C 40 56 50 56 51 46 C 52 28 50 6 43 6 Z"/><path class="kk-line" d="M 60 8 C 55 10 54 30 57 48 C 59 57 67 55 67 45 C 67 26 66 9 60 8 Z"/><ellipse class="kk-line" cx="50" cy="64" rx="34" ry="27"/><ellipse class="kk-fill" cx="41" cy="62" rx="2.4" ry="3.2"/><ellipse class="kk-fill" cx="59" cy="62" rx="2.4" ry="3.2"/><circle class="kk-dot" cx="50" cy="69" r="3.4"/><path class="kk-line" style="fill:none" d="M 47 74 q 3 4 6 0"/><path class="kk-line" d="M 32 88 q -4 20 8 28 q 10 5 20 0 q 12 -8 8 -28 z"/></symbol>
+<symbol id="kkuk-kkumi" viewBox="0 0 120 60"><path class="kk-line" style="fill:none" d="M 22 22 q -3 -10 -8 -14"/><circle class="kk-line" cx="13" cy="7" r="3.5"/><path class="kk-line" style="fill:none" d="M 30 20 q 0 -12 2 -16"/><circle class="kk-line" cx="32" cy="3" r="3.5"/><ellipse class="kk-line" cx="28" cy="36" rx="18" ry="15"/><ellipse class="kk-line" cx="56" cy="38" rx="16" ry="14"/><ellipse class="kk-line" cx="82" cy="38" rx="15" ry="13"/><path class="kk-line" style="fill:none" d="M 44 28 q 2 8 0 16"/><path class="kk-line" style="fill:none" d="M 70 30 q 2 8 0 14"/><circle class="kk-fill" cx="22" cy="33" r="2"/><circle class="kk-dot" cx="20" cy="40" r="2.6"/><path class="kk-line" style="fill:none" d="M 24 42 q 4 4 8 1"/></symbol>
+<symbol id="kkuk-tokkumi-clover" viewBox="0 0 120 124"><path class="kk-line" d="M 38 6 C 33 6 31 26 33 46 C 35 56 45 56 46 46 C 47 28 45 6 38 6 Z"/><path class="kk-line" d="M 55 8 C 50 10 49 30 52 48 C 54 57 62 55 62 45 C 62 26 61 9 55 8 Z"/><ellipse class="kk-line" cx="45" cy="64" rx="34" ry="27"/><ellipse class="kk-fill" cx="36" cy="62" rx="2.4" ry="3.2"/><ellipse class="kk-fill" cx="54" cy="62" rx="2.4" ry="3.2"/><circle class="kk-dot" cx="45" cy="69" r="3.4"/><path class="kk-line" style="fill:none" d="M 42 74 q 3 4 6 0"/><path class="kk-line" d="M 27 88 q -4 20 8 28 q 10 5 20 0 q 12 -8 8 -28 z"/><g transform="translate(96 70)"><circle class="kk-clover" cx="-5" cy="-5" r="6"/><circle class="kk-clover" cx="5" cy="-5" r="6"/><circle class="kk-clover" cx="-5" cy="5" r="6"/><circle class="kk-clover" cx="5" cy="5" r="6"/><path style="fill:none;stroke:#221F20;stroke-width:2;stroke-linecap:round" d="M 0 6 q 2 10 -6 16"/></g></symbol>
+</svg>
+
+<!-- ===== 1. 헤더 데모 ===== -->
+<header class="kk-header">
+  <div class="kk-header__inner">
+    <a class="kk-header__brand" href="#">
+      <span class="kk-header__mascot" style="padding:2px;"><img src="../assets/characters/paenkkumi.svg" alt="팬꾸미" style="width:100%;height:100%;object-fit:contain;"></span>
+      <span>
+        <span class="kk-header__title">충남 고교학점제 온마당</span>
+        <span class="kk-header__subtitle">참학력 온라인 공동교육과정 · 꾸꾸클럽</span>
+      </span>
+    </a>
+    <nav class="kk-header__nav">
+      <a href="#" aria-current="page">학생</a>
+      <a href="#">교사</a>
+      <a href="#">학부모</a>
+      <a href="#">자료마당</a>
+    </nav>
+  </div>
+</header>
+
+<main class="kk-container" style="padding-block: var(--space-6);">
+
+  <!-- 히어로 -->
+  <section style="display:grid; grid-template-columns: 1fr auto; gap: var(--space-5); align-items:center; margin-bottom: var(--space-6);">
+    <div>
+      <div class="kk-section-title">
+        <span class="kk-section-title__eyebrow">디자인 시스템 v1.0 · 라이브 프리뷰</span>
+        <h1 class="kk-section-title__heading">꾸물꾸물 느리지만,<br>천천히 꿈을 향해</h1>
+        <p class="kk-section-title__sub">Kkuk-Kkuk Club Design System</p>
+      </div>
+      <div class="demo-row">
+        <a class="kk-btn kk-btn--primary kk-btn--lg" href="#">학과 선택 시작</a>
+        <a class="kk-btn kk-btn--secondary kk-btn--lg" href="#">자료집 보기</a>
+      </div>
+    </div>
+    <div style="width:140px;"><img src="../assets/characters/tokkumi.svg" alt="토꾸미" style="width:100%"></div>
+  </section>
+
+  <!-- 2. 색 팔레트 -->
+  <section class="demo-section">
+    <div class="demo-label">색 팔레트 — 꾸꾸클럽 공식 색 (PDF 추출)</div>
+    <div class="demo-grid">
+      <div class="swatch"><div class="swatch__chip" style="background:var(--kkuk-blue-500)"></div><span class="swatch__name">브랜드 진블루</span><span class="swatch__hex">#4F6EBE · blue-500</span></div>
+      <div class="swatch"><div class="swatch__chip" style="background:var(--kkuk-sky-200)"></div><span class="swatch__name">라이트 블루(배경)</span><span class="swatch__hex">#DAF2FC · sky-200</span></div>
+      <div class="swatch"><div class="swatch__chip" style="background:var(--kkuk-green-300)"></div><span class="swatch__name">그린(네잎클로버)</span><span class="swatch__hex">#7BCE7C · green-300</span></div>
+      <div class="swatch"><div class="swatch__chip" style="background:var(--kkuk-cream-100)"></div><span class="swatch__name">크림(따뜻한 배경)</span><span class="swatch__hex">#FFFFE7 · cream-100</span></div>
+      <div class="swatch"><div class="swatch__chip" style="background:var(--kkuk-ink)"></div><span class="swatch__name">잉크(윤곽·본문)</span><span class="swatch__hex">#221F20 · ink</span></div>
+    </div>
+    <div style="margin-top:var(--space-5)" class="demo-label">진블루 램프</div>
+    <div class="demo-row">
+      <div class="swatch" style="flex:1"><div class="swatch__chip" style="background:var(--kkuk-blue-50)"></div><span class="swatch__hex">50</span></div>
+      <div class="swatch" style="flex:1"><div class="swatch__chip" style="background:var(--kkuk-blue-100)"></div><span class="swatch__hex">100</span></div>
+      <div class="swatch" style="flex:1"><div class="swatch__chip" style="background:var(--kkuk-blue-200)"></div><span class="swatch__hex">200</span></div>
+      <div class="swatch" style="flex:1"><div class="swatch__chip" style="background:var(--kkuk-blue-400)"></div><span class="swatch__hex">400</span></div>
+      <div class="swatch" style="flex:1"><div class="swatch__chip" style="background:var(--kkuk-blue-500)"></div><span class="swatch__hex">500</span></div>
+      <div class="swatch" style="flex:1"><div class="swatch__chip" style="background:var(--kkuk-blue-600)"></div><span class="swatch__hex">600</span></div>
+      <div class="swatch" style="flex:1"><div class="swatch__chip" style="background:var(--kkuk-blue-800)"></div><span class="swatch__hex">800</span></div>
+      <div class="swatch" style="flex:1"><div class="swatch__chip" style="background:var(--kkuk-blue-900)"></div><span class="swatch__hex">900</span></div>
+    </div>
+  </section>
+
+  <!-- 3. 서체 -->
+  <section class="demo-section">
+    <div class="demo-label">서체 위계 — Pretendard</div>
+    <p class="type-sample" style="font-size:var(--text-display); font-weight:700; line-height:1.3">꿈을 꾸는 클럽 <span class="type-meta">display 39.8px</span></p>
+    <p class="type-sample" style="font-size:var(--text-h1); font-weight:700">고교학점제 종합지원 <span class="type-meta">h1 31.3px</span></p>
+    <p class="type-sample" style="font-size:var(--text-h2); font-weight:600">계열별 학과 안내 <span class="type-meta">h2 25px</span></p>
+    <p class="type-sample" style="font-size:var(--text-h3); font-weight:600">생명과학Ⅱ <span class="type-meta">h3 20px</span></p>
+    <p class="type-sample" style="font-size:var(--text-body); font-weight:400; color:var(--color-text)">관심 학과의 권장 과목으로 시간표를 자동 구성합니다. 우리 학교에 없는 과목은 공동교육과정으로 안내합니다. <span class="type-meta">body 16px</span></p>
+    <p class="type-sample" style="font-size:var(--text-sm); color:var(--color-text-muted)">진로선택 · 4단위 · 의약보건계열 <span class="type-meta">sm 14px</span></p>
+  </section>
+
+  <!-- 4. 버튼 -->
+  <section class="demo-section">
+    <div class="demo-label">버튼</div>
+    <div class="demo-row">
+      <button class="kk-btn kk-btn--primary">기본 버튼</button>
+      <button class="kk-btn kk-btn--secondary">외곽선 버튼</button>
+      <button class="kk-btn kk-btn--ghost">고스트</button>
+      <button class="kk-btn kk-btn--accent">권장 (그린)</button>
+      <button class="kk-btn kk-btn--primary" disabled>비활성</button>
+    </div>
+    <div class="demo-row">
+      <button class="kk-btn kk-btn--primary kk-btn--sm">작게</button>
+      <button class="kk-btn kk-btn--primary">기본</button>
+      <button class="kk-btn kk-btn--primary kk-btn--lg">크게</button>
+    </div>
+  </section>
+
+  <!-- 5. 카드 + 배지 -->
+  <section class="demo-section">
+    <div class="demo-label">카드 · 배지</div>
+    <div class="demo-grid">
+      <article class="kk-card kk-card--course kk-card--hover">
+        <div class="kk-card__head">
+          <div>
+            <div class="kk-card__eyebrow">의약보건계열 · 권장</div>
+            <h3 class="kk-card__title">생명과학Ⅱ</h3>
+          </div>
+          <span class="kk-card__icon"><img src="../assets/characters/kkumi.svg" alt="꾸미" style="width:100%"></span>
+        </div>
+        <p class="kk-card__body">생명 현상을 분자 수준에서 탐구하는 진로선택 과목. 간호·의예·생명공학 계열 지망생에게 권장됩니다.</p>
+        <div class="kk-card__footer">
+          <span class="kk-badge kk-badge--recommend">★ 권장</span>
+          <span class="kk-badge kk-badge--core">◆ 핵심</span>
+          <span class="kk-badge kk-badge--online">온라인 개설</span>
+          <span class="kk-badge kk-badge--unit">4단위</span>
+        </div>
+      </article>
+
+      <article class="kk-card">
+        <div class="kk-card__eyebrow">모듈 1 · 자기이해</div>
+        <h3 class="kk-card__title">강점 카드 만들기</h3>
+        <p class="kk-card__body">흥미·적성·가치관 검사 결과를 입력하면 나만의 강점 카드를 만들어 줍니다.</p>
+        <div class="kk-card__footer">
+          <a class="kk-btn kk-btn--secondary kk-btn--sm" href="#">시작하기</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 6. 입력 폼 -->
+  <section class="demo-section">
+    <div class="demo-label">입력 폼</div>
+    <div style="max-width: 520px;">
+      <div class="kk-field">
+        <label class="kk-label" for="d1">학과명 검색 <span class="kk-label__hint">예: 간호학과</span></label>
+        <div class="kk-searchbar">
+          <input class="kk-input" id="d1" type="text" placeholder="관심 학과를 입력하세요">
+          <button class="kk-btn kk-btn--primary">검색</button>
+        </div>
+      </div>
+      <div class="kk-field">
+        <label class="kk-label" for="d2">계열 선택</label>
+        <select class="kk-select" id="d2">
+          <option>인문 계열</option><option>자연 계열</option><option>공학 계열</option><option>의약보건 계열</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 표 (관리자 표면 예시) -->
+  <section class="demo-section">
+    <div class="demo-label">표 — 187개교 현황 (행정/교사 화면)</div>
+    <div class="kk-table-wrap">
+      <table class="kk-table">
+        <thead><tr><th>학교</th><th class="num">개설 과목</th><th class="num">신청</th><th class="num">확정</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>천안고등학교</td><td class="num">42</td><td class="num">38</td><td class="num num--emph">35</td><td><span class="kk-badge kk-badge--recommend">개설 확정</span></td></tr>
+          <tr><td>아산고등학교</td><td class="num">39</td><td class="num">31</td><td class="num num--emph">28</td><td><span class="kk-badge kk-badge--recommend">개설 확정</span></td></tr>
+          <tr><td>공주고등학교</td><td class="num">35</td><td class="num">29</td><td class="num num--emph">26</td><td><span class="kk-badge kk-badge--online">검토 중</span></td></tr>
+          <tr><td>서산고등학교</td><td class="num">31</td><td class="num">18</td><td class="num num--emph">14</td><td><span class="kk-badge kk-badge--neutral">미달</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 8. 빈 상태 (캐릭터 활용) -->
+  <section class="demo-section">
+    <div class="demo-label">빈 상태 · 캐릭터 활용</div>
+    <div class="kk-card">
+      <div class="kk-empty">
+        <div class="kk-empty__char"><img src="../assets/characters/tokkumi.svg" alt="토꾸미" style="width:100%"></div>
+        <h3 class="kk-empty__title">아직 선택한 과목이 없어요</h3>
+        <p class="kk-empty__body">관심 학과를 고르면 토꾸미가 권장 과목으로 시간표를 짜드릴게요. 행운은 준비된 사람의 것!</p>
+        <a class="kk-btn kk-btn--primary" href="#">학과 둘러보기</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer style="background: var(--color-brand); color: #fff; padding: var(--space-6) 0; text-align:center;">
+  <div style="margin:0 auto var(--space-3); background:#fff; display:inline-block; padding:var(--space-3) var(--space-5); border-radius:var(--radius-lg);"><img src="../assets/characters/kkukkuk-club-logo.svg" alt="꾸꾸클럽" style="height:120px"></div>
+  <div style="font-size:var(--text-sm); opacity:0.9">충청남도교육청 · 참학력 온라인 공동교육과정</div>
+  <div style="font-size:var(--text-xs); opacity:0.7; margin-top:var(--space-1)">꾸꾸클럽 디자인 시스템 v1.0</div>
+</footer>
+
+</body>
+</html>
